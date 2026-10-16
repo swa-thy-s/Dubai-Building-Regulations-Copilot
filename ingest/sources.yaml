@@ -15,9 +15,13 @@ documents:
     edition: "17 Jan 2022 (ref DP-VP-CS-GEN-0008-2022)" # from the letter itself
     status: current
     source_url: null
-    # Step 6 status 2026-10-16: 1-page customer letter about DEWA regulations in the DBC. Chunker returns 0 chunks
-    # (outline-driven, DBC only). Needs a letter/plain-text adapter, then owner confirmation it is worth indexing.
+    # Step 6 (2026-10-17): parses to 1 chunk with the numbered adapter. Ready to ingest.
     pdf_path: "data/raw/Dubai Building Code Circular EN.pdf"
+    kind: numbered
+    numbered:
+      clause_re: '^(?!)$' # a one-page letter: no numbered clauses, keep the text as one chunk
+      front_prefix: Circular
+      front_type: clause
 
   - slug: alsafat-2023
     title: Al Sa'fat Dubai Green Building System
@@ -25,9 +29,16 @@ documents:
     edition: "2nd ed. 2023"
     status: current
     source_url: null
-    # Step 6 status: pages are stamped "SHARED - CONFIDENTIAL". Owner must confirm it may be indexed and quoted
-    # before ingestion. 1,604 outline entries, 75 pages; needs its own chunker.
+    # Step 6 (2026-10-17): parses to 132 chunks (102 articles like 301.01, plus definitions as per-page chunks). Pages are
+    # stamped "SHARED - CONFIDENTIAL": owner asked for it to be indexed; confirm quoting rights before any public launch.
     pdf_path: "data/raw/Al-Safat-–-Dubai-Green-Building-System-2nd-editionJan2023.pdf"
+    kind: numbered
+    numbered:
+      first_page: 2
+      clause_start_page: 34 # pages 2-33: definitions, structure and the summary table; clauses start at 301.01
+      clause_re: '^(\d{3}\.\d{2})\s+(\S.*)$'
+      chapter_re: '^\d{3}:\s+\S'
+      noise_res: ['SHARED\s*[–-]\s*CONFIDENTIAL', '^Al Sa.fat']
 
   - slug: dbc-wind
     title: Dubai Wind Code
@@ -36,8 +47,16 @@ documents:
     status: current
     source_url: null
     pdf_path: "data/raw/DubaiWindCode6-2.pdf"
-    # Step 6 status: English, 25 pages, but it is a DRAFT. Owner decides whether answers may rest on a draft
-    # (edition badge would read "Draft Copy 2013"). Chunker returns 0 chunks; needs an adapter.
+    kind: numbered
+    repair_ligatures: true
+    numbered:
+      first_page: 3
+      clause_re:
+        - '^(\d+)\.\s+([A-Z][A-Z ,\-/()]{2,70})$'
+        - '^(\d+(?:\.\d+){1,3})\.?\s+([A-Z][A-Za-z ,\-/()]{2,70})$'
+      noise_res: ['\.{4,}', '^Dubai Wind Code', 'Draft Copy']
+    # Step 6 (2026-10-17): parses to 30 chunks. It is a DRAFT (edition badge reads "Draft Copy 2013"). Equations extract
+    # as fragments, so formulas are unreliable; prose and stated values are fine.
 
   - slug: dbc-seismic
     title: Seismic Design Code for Dubai
@@ -46,8 +65,9 @@ documents:
     status: current
     source_url: null
     pdf_path: "data/raw/DB_SEISMIC-DESIGN-CODEF-OR-DUBAI.pdf"
-    # Step 6 status: BLOCKED. Text layer is garbled by a shifted font encoding (e.g. "SEISMIC ANALYSIS" extracts as
-    # "$ 6(,60,&$1$/<6,6"), so digits and units cannot be trusted. Needs OCR or an official clean copy.
+    # Step 6 (2026-10-17): NOT INDEXED. The text layer uses a shifted font encoding. A +29 shift recovers letters and
+    # digits, but stray "A" glyphs stand in for spaces, ")" often comes out as "=", symbols (>=, Greek) are lost and
+    # equations are unreadable. Verbatim quotes would be wrong. Needs OCR or an official clean PDF.
 
   - slug: dbc-structural
     title: Structural Codes Guidelines
@@ -56,7 +76,8 @@ documents:
     status: current
     source_url: null
     pdf_path: "data/raw/StructuralCodesguidelines4-2.pdf"
-    # Step 6 status: BLOCKED. 6-page scanned Arabic document with an OCR-noise text layer. App is English only.
+    # Step 6 (2026-10-17): NOT INDEXED. 6 pages, scanned images; the cover is bilingual but the body is Arabic. No OCR
+    # available locally. Needs Arabic OCR plus a decision on indexing non-English text.
 
   - slug: dbc-soil
     title: Soil Testing Guidelines
@@ -65,7 +86,7 @@ documents:
     status: current
     source_url: null
     pdf_path: "data/raw/SoiltestingGuidelines3-2.pdf"
-    # Step 6 status: BLOCKED. 3-page scanned Arabic document with an OCR-noise text layer. App is English only.
+    # Step 6 (2026-10-17): NOT INDEXED. 3 pages, scanned Arabic. Same as dbc-structural.
 
   - slug: dubai-real-estate-legislation
     kind: legislation # one documents row per law; slug derived from the TOC (e.g. law-27-2007)
@@ -78,5 +99,6 @@ documents:
     pdf_path: "data/raw/Real_Estate_Legislation_en.pdf"
 
 # Module 2 (later): data/raw/Real_Estate_Legislation_en.pdf -> authority RERA
-# Not yet classified: data/raw/Sustainable-Dubai.pdf
+# data/raw/Sustainable-Dubai.pdf: NOT INDEXED. It is "A Sustainable Dubai: The Dubai Municipality Report 2016", an annual report,
+# not a regulation. It has no clauses to cite, and indexing it would let report statistics sit beside binding rules.
 # Not ingestible (calculators): the .xls / .xlsx schedules

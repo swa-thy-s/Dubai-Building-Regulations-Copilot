@@ -10,7 +10,7 @@ import yaml
 
 from dotenv import load_dotenv
 
-from ingest import chunk, embed, legislation, parse, qa, upsert
+from ingest import chunk, embed, legislation, numbered, parse, qa, upsert
 
 
 def load_source(slug: str) -> dict:
@@ -23,6 +23,15 @@ def load_source(slug: str) -> dict:
 
 def run_parse(slug: str, part: str | None) -> dict:
     src = load_source(slug)
+    if src.get("kind") == "numbered":
+        cfg = src["numbered"]
+        chunks, stats = numbered.chunk_numbered(src["pdf_path"], cfg, src["title"], src.get("repair_ligatures", False))
+        n_pages = len(pymupdf.open(src["pdf_path"]))
+        data = dict(slug=slug, part=src["title"], pages=[cfg.get("first_page", 1), cfg.get("last_page", n_pages)], stats=stats, chunks=chunks)
+        path = qa.cache_path(slug, part)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=1))
+        return data
     pdf = src["pdf_path"]
     doc = pymupdf.open(pdf)
     first, last = chunk.part_page_range(pdf, part) if part else (1, len(doc))
@@ -77,7 +86,15 @@ def run_legislation(src: dict, only: str | None, dry_run: bool) -> None:
     print("done")
 
 
-if __name__ == "__main__":
+def main_cli() -> None:
+    try:
+        _main()
+    except embed.QuotaExhausted as e:
+        print(f"STOPPED: {e}. Cached embeddings are kept; rerun this command after the quota resets.")
+        raise SystemExit(75)
+
+
+def _main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("slug")
     ap.add_argument("--part")
@@ -101,3 +118,7 @@ if __name__ == "__main__":
     upsert.record_embedding_model(sb)
     upsert.upload_pdf(sb, doc_id, src)
     print("done")
+
+
+if __name__ == "__main__":
+    main_cli()

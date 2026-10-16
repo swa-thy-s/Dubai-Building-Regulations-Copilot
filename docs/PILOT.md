@@ -38,13 +38,23 @@ A link to the app and a one-page brief:
 - [ ] GitHub **Secrets** for the PR retrieval eval in `.github/workflows/ci.yml`: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`. Without them the `retrieval-eval` job fails; `checks` still runs.
 - [ ] Before the pilot: clear dev/test rows from `query_logs` (rows with `ip_hash = 'eval'` are already hidden in `/admin`; manual test questions are not).
 
-## Step 6 document decisions (see `ingest/sources.yaml`)
-| Document | State | Needs from owner |
-| --- | --- | --- |
-| Dubai Building Code Circular (17 Jan 2022) | Clean 1-page English letter; chunker gives 0 chunks | Worth indexing? Then a letter adapter |
-| Al Sa'fat Green Building System 2nd ed. 2023 | Pages stamped "SHARED - CONFIDENTIAL" | Confirm it may be indexed and quoted |
-| Dubai Wind Code | English, but cover says "Draft Copy 2013" | Allow answers from a draft? Edition badge would say so |
-| Seismic Design Code | Garbled text layer (font encoding); numbers untrustworthy | An official clean copy, or approve OCR plus a full manual check |
-| Structural Codes Guidelines, Soil Testing Guidelines | Scanned Arabic, 6 and 3 pages | English versions, or leave out (app is English only) |
+## Step 6: what is indexed and what is ready (updated 2026-10-17)
 
-The ingestion chunker is outline-driven and built for the DBC. Each new document type needs an adapter and its own spot check (spec 7.5) before it goes live.
+Live now: Dubai Building Code 2021, Part B (400 chunks). Everything below is parsed and checked, and waits only for embedding capacity.
+
+| Source | Chunks | State |
+| --- | --- | --- |
+| DBC 2021 Part A General | 65 | Ready (`python -m ingest.main dbc-2021 --part "Part A"`). Table A.1 defines renovation vs modification |
+| DBC 2021 Parts C, D, E, F, G, H, J, K | 210, 144, 102, 182, 361, 358, 26, 639 | Ready, same command with `--part "Part X"` |
+| Dubai Real Estate Legislation (17 laws, authority RERA) | 344 | Ready: `python -m ingest.main dubai-real-estate-legislation`. Includes Law 27/2007 on jointly owned property |
+| Al Sa'fat Green Building System, 2nd ed. 2023 | 132 | Ready. Stamped "SHARED - CONFIDENTIAL" |
+| Dubai Wind Code (Draft Copy 2013) | 30 | Ready. Draft; formulas unreliable |
+| DBC Circular (17 Jan 2022) | 1 | Ready |
+| Seismic Design Code | 0 | Not indexed: text layer unreliable (see `ingest/sources.yaml`) |
+| Structural Codes and Guidelines, Soil Testing Guidelines | 0 | Not indexed: scanned Arabic, no OCR |
+| Sustainable Dubai report 2016 | 0 | Not indexed: an annual report, not a regulation |
+| Excel calculators and schedules (AC unit, solar, glazed) | 0 | Not indexed: spreadsheets, no clause text |
+
+About 2,590 new chunks need embedding. The Gemini free tier allows 1,000 embedding requests per day, and the live app also uses it (one per question). Options: enable billing on the Google AI project (finishes in minutes), or ingest in stages. Ingestion now stops cleanly when the daily quota is hit, keeps its cache and resumes on the next run.
+
+After the new documents go live, redo: ingest QA spot checks per source, gate threshold sweep, golden set review (some should-abstain questions become answerable), retrieval and full evals, experiments, Lighthouse.

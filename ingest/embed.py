@@ -11,8 +11,12 @@ import urllib.request
 from pathlib import Path
 
 DIMS = 768
-BATCH = 50
+BATCH = int(os.environ.get("EMBED_BATCH", "20"))  # free tier counts every text; small batches fit a nearly spent daily quota
 CACHE = Path("data/cache/embeddings.jsonl")
+
+
+class QuotaExhausted(RuntimeError):
+    """Daily embedding quota used up. Progress is cached; rerun after the quota resets."""
 
 
 def embed_text(doc_title: str, edition: str, chunk: dict) -> str:
@@ -55,12 +59,15 @@ def _call(model: str, texts: list[str], task: str, api_key: str) -> list[list[fl
             with urllib.request.urlopen(req, timeout=120) as r:
                 return [e["values"] for e in json.load(r)["embeddings"]]
         except urllib.error.HTTPError as e:
+            body = e.read()
+            if e.code == 429 and b"PerDay" in body:
+                raise QuotaExhausted("Gemini daily embedding quota exhausted") from None
             if e.code in (429, 500, 503) and attempt < 7:
                 wait = min(90, 2**attempt * 2) + random.random() * 2
                 print(f"  embed HTTP {e.code}, retrying in {wait:.0f}s")
                 time.sleep(wait)
                 continue
-            raise RuntimeError(f"Gemini embed failed: HTTP {e.code} {e.read()[:300]!r}") from None
+            raise RuntimeError(f"Gemini embed failed: HTTP {e.code} {body[:300]!r}") from None
     raise RuntimeError("unreachable")
 
 
