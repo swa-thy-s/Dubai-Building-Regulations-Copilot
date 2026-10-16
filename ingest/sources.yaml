@@ -1,0 +1,62 @@
+# One entry per document. PDFs live in data/raw/ (gitignored).
+# Fields marked TODO need confirming against the official source before ingestion.
+documents:
+  - slug: dbc-2021
+    title: Dubai Building Code
+    authority: DM
+    edition: "2021"
+    status: current
+    source_url: null # TODO: official dm.gov.ae link
+    pdf_path: "data/raw/Dubai Building Code_English_2021 Edition.pdf"
+
+  - slug: dbc-circular
+    title: Dubai Building Code Circular
+    authority: DM
+    edition: TODO # confirm what this circular is and its date
+    status: current
+    source_url: null
+    pdf_path: "data/raw/Dubai Building Code Circular EN.pdf"
+
+  - slug: alsafat-2023
+    title: Al Sa'fat Dubai Green Building System
+    authority: DM
+    edition: "2nd ed. 2023"
+    status: current
+    source_url: null
+    pdf_path: "data/raw/Al-Safat-–-Dubai-Green-Building-System-2nd-editionJan2023.pdf"
+
+  - slug: dbc-wind
+    title: Dubai Wind Code
+    authority: DM
+    edition: TODO
+    status: current
+    source_url: null
+    pdf_path: "data/raw/DubaiWindCode6-2.pdf"
+
+  - slug: dbc-seismic
+    title: Seismic Design Code for Dubai
+    authority: DM
+    edition: TODO
+    status: current
+    source_url: null
+    pdf_path: "data/raw/DB_SEISMIC-DESIGN-CODEF-OR-DUBAI.pdf"
+
+  - slug: dbc-structural
+    title: Structural Codes Guidelines
+    authority: DM
+    edition: TODO
+    status: current
+    source_url: null
+    pdf_path: "data/raw/StructuralCodesguidelines4-2.pdf"
+
+  - slug: dbc-soil
+    title: Soil Testing Guidelines
+    authority: DM
+    edition: TODO
+    status: current
+    source_url: null
+    pdf_path: "data/raw/SoiltestingGuidelines3-2.pdf"
+
+# Module 2 (later): data/raw/Real_Estate_Legislation_en.pdf -> authority RERA
+# Not yet classified: data/raw/Sustainable-Dubai.pdf
+# Not ingestible (calculators): the .xls / .xlsx schedules

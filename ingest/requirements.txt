@@ -1,0 +1,7 @@
+pymupdf
+pdfplumber
+pyyaml
+supabase
+python-dotenv
+google-genai
+pytest
