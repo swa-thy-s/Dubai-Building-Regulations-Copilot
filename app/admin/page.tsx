@@ -53,7 +53,7 @@ export default function AdminPage() {
       body: JSON.stringify({ password }),
     });
     if (res.ok) {
-      setAuthed(true);
+      await loadStats();
     } else {
       setLoginError("Wrong password");
     }
@@ -67,24 +67,17 @@ export default function AdminPage() {
     }
     if (res.ok) {
       setStats(await res.json());
+      setAuthed(true);
     }
   }, []);
 
   useEffect(() => {
-    if (authed) loadStats();
-  }, [authed, loadStats]);
-
-  useEffect(() => {
-    fetch("/api/admin/stats").then((r) => {
-      if (r.ok) {
-        setAuthed(true);
-      }
-    });
-  }, []);
+    loadStats();
+  }, [loadStats]);
 
   const copyGolden = (q: QueryLog) => {
     const line = JSON.stringify({
-      id: `g-${Date.now().toString(36)}`,
+      id: `g-${q.id.slice(0, 8)}`,
       question: q.question,
       type: "lookup",
       authority: "DM",

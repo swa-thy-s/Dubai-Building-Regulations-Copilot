@@ -14,6 +14,7 @@ export async function GET() {
       .from("query_logs")
       .select("id, question, rewritten_query, abstained, abstain_reason, verify_passed, latency_ms, model, created_at, retrieved, answer")
       .gte("created_at", sevenDaysAgo)
+      .neq("ip_hash", "eval")
       .order("created_at", { ascending: false })
       .limit(100),
     sb

@@ -11,6 +11,7 @@ import * as path from "path";
 import { createClient } from "@supabase/supabase-js";
 import { hybridSearch, type SearchResult } from "../lib/pipeline/search";
 import { runPipeline } from "../lib/pipeline/pipeline";
+import { scoreRetrieval, mustIncludeHit } from "./eval-metrics";
 
 interface GoldenQuestion {
   id: string;
@@ -37,26 +38,17 @@ function parseArgs() {
   let tag = "unnamed";
   let retrievalOnly = false;
   let onlyType: string | null = null;
+  let checkBaseline = false;
+  let noDb = false;
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--tag" && args[i + 1]) tag = args[++i];
     else if (args[i] === "--retrieval-only") retrievalOnly = true;
     else if (args[i] === "--only" && args[i + 1]) onlyType = args[++i];
+    else if (args[i] === "--check-baseline") checkBaseline = true;
+    else if (args[i] === "--no-db") noDb = true;
   }
-  return { tag, retrievalOnly, onlyType };
-}
-
-function chunkRefMatches(
-  goldRef: string,
-  retrievedRef: string,
-): boolean {
-  // gold_chunks are like "dbc-2021#Table B.5" or "dbc-2021#B.6.4.1.4"
-  const parts = goldRef.split("#");
-  if (parts.length !== 2) return false;
-  const goldClause = parts[1];
-  // Retrieved refs may have split markers like "B.6.4.1.4 (1/2)"
-  const base = retrievedRef.replace(/\s*\(\d+\/\d+\)$/, "").trim();
-  return base === goldClause;
+  return { tag, retrievalOnly, onlyType, checkBaseline, noDb };
 }
 
 interface QuestionResult {
@@ -116,27 +108,8 @@ async function evalQuestion(
 
   const retrievedRefs = results.map((r) => r.clause_ref);
   const top5Refs = retrievedRefs.slice(0, 5);
-  const topKRefs = retrievedRefs.slice(0, k);
 
-  // Recall@5: fraction of gold chunks found in top 5
-  let hitsAt5 = 0;
-  let hitsAtK = 0;
-  let firstRank = Infinity;
-
-  for (const gold of q.gold_chunks) {
-    const foundAt5 = top5Refs.some((r) => chunkRefMatches(gold, r));
-    const foundAtK = topKRefs.some((r) => chunkRefMatches(gold, r));
-    if (foundAt5) hitsAt5++;
-    if (foundAtK) hitsAtK++;
-
-    const idx = retrievedRefs.findIndex((r) => chunkRefMatches(gold, r));
-    if (idx >= 0 && idx < firstRank) firstRank = idx;
-  }
-
-  const numGold = q.gold_chunks.length || 1;
-  const recallAt5 = hitsAt5 / numGold;
-  const recallAtK = hitsAtK / numGold;
-  const mrr = firstRank < Infinity ? 1 / (firstRank + 1) : 0;
+  const { recallAt5, recallAtK, mrr } = scoreRetrieval(q.gold_chunks, retrievedRefs, k);
 
   const bestSim = results[0]?.similarity ?? 0;
   const topFtsInTop5 = results
@@ -162,7 +135,7 @@ async function evalQuestion(
 }
 
 async function main() {
-  const { tag, onlyType, retrievalOnly } = parseArgs();
+  const { tag, onlyType, retrievalOnly, checkBaseline, noDb } = parseArgs();
   const goldenPath = path.resolve("evals/golden.jsonl");
   let questions = parseGolden(goldenPath);
 
@@ -183,15 +156,12 @@ async function main() {
       const t0 = Date.now();
       try {
         const p = await runPipeline(q.question, q.authority === "Trakhees" ? ["Trakhees"] : undefined, "eval");
-        const hits = q.must_include.filter((m) =>
-          p.answer_md.toLowerCase().replace(/,/g, "").includes(m.toLowerCase().replace(/,/g, "")),
-        ).length;
         r.full = {
           abstained: p.abstained,
           abstain_reason: p.abstain_reason,
           answer_md: p.answer_md,
           n_citations: p.citations.length,
-          must_include_hit: q.must_include.length ? hits / q.must_include.length : null,
+          must_include_hit: mustIncludeHit(q.must_include, p.answer_md),
           latency_ms: Date.now() - t0,
         };
       } catch (e) {
@@ -350,7 +320,7 @@ async function main() {
   console.log(`\nReport written: ${reportPath}`);
 
   // Write to Supabase eval tables
-  try {
+  if (!noDb) try {
     const sb = createClient(
       process.env.SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -397,6 +367,17 @@ async function main() {
     }
   } catch (e) {
     console.error(`Warning: Supabase write failed: ${e}`);
+  }
+
+  if (checkBaseline) {
+    const basePath = path.resolve("evals/baseline.json");
+    const base = JSON.parse(fs.readFileSync(basePath, "utf-8"));
+    const drop = base.recall_at_5 - avgRecall5;
+    console.log(`\nBaseline check: recall@5 ${(avgRecall5 * 100).toFixed(1)}% vs baseline ${(base.recall_at_5 * 100).toFixed(1)}%`);
+    if (drop > 0.05) {
+      console.error(`FAIL: recall@5 dropped ${(drop * 100).toFixed(1)} points (limit 5).`);
+      process.exit(1);
+    }
   }
 }
 

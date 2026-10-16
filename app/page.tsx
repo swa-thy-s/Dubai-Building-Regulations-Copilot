@@ -79,7 +79,15 @@ export default function Home() {
 
         if (res.status === 429) {
           const data = await res.json();
-          setError(data.error || "Rate limit reached. Try again later.");
+          if (data.code === "hourly" && data.reset_at) {
+            const t = new Date(data.reset_at).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            setError(`You have reached the hourly limit. Try again at ${t}.`);
+          } else {
+            setError(data.error || "The tool is at capacity. Try again later.");
+          }
           setLoading(false);
           return;
         }

@@ -1,0 +1,5 @@
+{
+  "recall_at_5": 0.989,
+  "note": "Retrieval-only, golden v1 (60 questions), gate 0.68, 2026-10-16. Update deliberately when the corpus or golden set changes.",
+  "report": "evals/reports/2026-10-16-a34db2c-golden60-retrieval.md"
+}

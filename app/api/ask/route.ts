@@ -35,7 +35,10 @@ export async function POST(request: Request) {
   // Rate limit
   const rateCheck = await checkRateLimit(ipHash);
   if (!rateCheck.allowed) {
-    return Response.json({ error: rateCheck.reason }, { status: 429 });
+    return Response.json(
+      { error: rateCheck.reason, code: rateCheck.code, reset_at: rateCheck.resetAt },
+      { status: 429 },
+    );
   }
 
   // Stream response via SSE

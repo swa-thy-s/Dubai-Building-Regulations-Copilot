@@ -15,11 +15,18 @@ export function hashIP(ip: string): string {
   return createHash("sha256").update(`${salt}:${ip}`).digest("hex").slice(0, 16);
 }
 
+export interface RateLimitResult {
+  allowed: boolean;
+  reason?: string;
+  code?: "hourly" | "daily";
+  resetAt?: string;
+}
+
 export async function checkRateLimit(
   ipHash: string,
-): Promise<{ allowed: boolean; reason?: string }> {
-  const db = getSb();
-  const now = new Date();
+  db: SupabaseClient = getSb(),
+  now: Date = new Date(),
+): Promise<RateLimitResult> {
   const hourAgo = new Date(now.getTime() - 3600_000);
   const dayStart = new Date(now.toISOString().slice(0, 10) + "T00:00:00Z");
 
@@ -31,7 +38,22 @@ export async function checkRateLimit(
     .gte("window_start", hourAgo.toISOString());
 
   if ((ipCount ?? 0) >= 20) {
-    return { allowed: false, reason: "Too many requests. Try again in an hour." };
+    const { data: oldest } = await db
+      .from("rate_limits")
+      .select("window_start")
+      .eq("key", `ip:${ipHash}`)
+      .gte("window_start", hourAgo.toISOString())
+      .order("window_start", { ascending: true })
+      .limit(1);
+    const first = oldest?.[0]?.window_start
+      ? new Date(oldest[0].window_start)
+      : now;
+    return {
+      allowed: false,
+      code: "hourly",
+      reason: "You have reached the hourly limit.",
+      resetAt: new Date(first.getTime() + 3600_000).toISOString(),
+    };
   }
 
   // Global daily cap
@@ -43,7 +65,11 @@ export async function checkRateLimit(
     .gte("window_start", dayStart.toISOString());
 
   if ((dayCount ?? 0) >= cap) {
-    return { allowed: false, reason: "Daily request limit reached. Try again tomorrow." };
+    return {
+      allowed: false,
+      code: "daily",
+      reason: "The tool is at capacity. Try again later.",
+    };
   }
 
   // Record this request
