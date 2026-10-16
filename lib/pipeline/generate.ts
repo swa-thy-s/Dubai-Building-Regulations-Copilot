@@ -1,17 +1,7 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import { z } from "zod/v4";
 import { SYSTEM_PROMPT } from "./prompts";
+import { chatJson } from "./llm";
 import type { SearchResult } from "./search";
-
-let ai: GoogleGenAI | null = null;
-
-function getAI(): GoogleGenAI {
-  if (ai) return ai;
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error("GEMINI_API_KEY is not set");
-  ai = new GoogleGenAI({ apiKey: key });
-  return ai;
-}
 
 export const GenerationSchema = z.object({
   abstain: z.boolean(),
@@ -37,24 +27,26 @@ function formatChunks(chunks: SearchResult[]): string {
 }
 
 const RESPONSE_SCHEMA = {
-  type: Type.OBJECT,
+  type: "object",
   properties: {
-    abstain: { type: Type.BOOLEAN },
-    answer_md: { type: Type.STRING },
+    abstain: { type: "boolean" },
+    answer_md: { type: "string" },
     claims: {
-      type: Type.ARRAY,
+      type: "array",
       items: {
-        type: Type.OBJECT,
+        type: "object",
         properties: {
-          text: { type: Type.STRING },
-          chunk_ids: { type: Type.ARRAY, items: { type: Type.STRING } },
+          text: { type: "string" },
+          chunk_ids: { type: "array", items: { type: "string" } },
         },
         required: ["text", "chunk_ids"],
+        additionalProperties: false,
       },
     },
-    conditions: { type: Type.ARRAY, items: { type: Type.STRING } },
+    conditions: { type: "array", items: { type: "string" } },
   },
   required: ["abstain", "answer_md", "claims", "conditions"],
+  additionalProperties: false,
 };
 
 function normalize(raw: Record<string, unknown>): Record<string, unknown> {
@@ -68,43 +60,11 @@ function normalize(raw: Record<string, unknown>): Record<string, unknown> {
   return raw;
 }
 
-async function callWithRetry(
-  model: string,
-  userMessage: string,
-  maxAttempts = 3,
-): Promise<string> {
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    try {
-      const result = await getAI().models.generateContent({
-        model,
-        contents: userMessage,
-        config: {
-          systemInstruction: SYSTEM_PROMPT,
-          temperature: 0.1,
-          responseMimeType: "application/json",
-          responseSchema: RESPONSE_SCHEMA,
-        },
-      });
-      return result.text ?? "";
-    } catch (e: unknown) {
-      const status = (e as { status?: number }).status;
-      if (status && [429, 500, 503].includes(status) && attempt < maxAttempts - 1) {
-        const wait = Math.min(30, 2 ** attempt * 2 + Math.random() * 2);
-        await new Promise((r) => setTimeout(r, wait * 1000));
-        continue;
-      }
-      throw e;
-    }
-  }
-  throw new Error("unreachable");
-}
-
 export async function generate(
   question: string,
   chunks: SearchResult[],
   feedback?: string,
 ): Promise<GenerationResult> {
-  const model = process.env.GEMINI_GEN_MODEL || "gemini-2.5-flash";
   const context = formatChunks(chunks);
 
   let userMessage = `${question}\n\n${context}`;
@@ -112,7 +72,12 @@ export async function generate(
     userMessage += `\n\nPrevious attempt had verification failures:\n${feedback}\nPlease fix these issues in your response.`;
   }
 
-  const text = await callWithRetry(model, userMessage);
+  const text = await chatJson({
+    system: SYSTEM_PROMPT,
+    user: userMessage,
+    schemaName: "answer",
+    schema: RESPONSE_SCHEMA,
+  });
   const parsed = normalize(JSON.parse(text));
   return GenerationSchema.parse(parsed);
 }

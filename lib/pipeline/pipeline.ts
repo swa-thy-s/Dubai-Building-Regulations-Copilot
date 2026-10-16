@@ -4,6 +4,10 @@ import { hybridSearch, type SearchResult } from "./search";
 import { checkGate } from "./gate";
 import { generate, type GenerationResult } from "./generate";
 import { verify } from "./verify";
+import { llmModel } from "./llm";
+import { buildCitations, type Citation } from "./citations";
+
+export type { Citation };
 
 let sb: SupabaseClient | null = null;
 function getSb(): SupabaseClient {
@@ -12,17 +16,6 @@ function getSb(): SupabaseClient {
     auth: { persistSession: false },
   });
   return sb;
-}
-
-export interface Citation {
-  n: number;
-  chunk_id: string;
-  document: string;
-  edition: string;
-  authority: string;
-  clause_ref: string;
-  page: number;
-  quote: string;
 }
 
 export interface PipelineResult {
@@ -47,7 +40,7 @@ export async function runPipeline(
   const start = Date.now();
   const gate = parseFloat(process.env.GATE_THRESHOLD || "0.68");
   const k = parseInt(process.env.K_CONTEXT || "6", 10);
-  const model = process.env.GEMINI_GEN_MODEL || "gemini-2.5-flash";
+  const model = llmModel();
 
   // Query prep
   onProgress?.({ stage: "Rewriting query" });
@@ -182,21 +175,7 @@ export async function runPipeline(
     };
   }
 
-  // Build citations
-  const citations: Citation[] = gen.claims.map((claim, i) => {
-    const primaryChunkId = claim.chunk_ids[0];
-    const chunk = context.find((c) => c.chunk_id === primaryChunkId);
-    return {
-      n: i + 1,
-      chunk_id: primaryChunkId,
-      document: "Dubai Building Code",
-      edition: "2021",
-      authority: "DM",
-      clause_ref: chunk?.clause_ref ?? "",
-      page: chunk?.page_start ?? 0,
-      quote: claim.text.slice(0, 200),
-    };
-  });
+  const { citations, answer_md } = buildCitations(gen, context);
 
   const traceId = await logQuery({
     question,
@@ -215,7 +194,7 @@ export async function runPipeline(
     trace_id: traceId,
     abstained: false,
     abstain_reason: null,
-    answer_md: gen.answer_md,
+    answer_md,
     conditions: gen.conditions,
     citations,
   };

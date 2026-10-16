@@ -1,15 +1,17 @@
-import { GoogleGenAI } from "@google/genai";
 import { QUERY_PREP_PROMPT } from "./prompts";
+import { chatJson } from "./llm";
 
-let ai: GoogleGenAI | null = null;
-
-function getAI(): GoogleGenAI {
-  if (ai) return ai;
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error("GEMINI_API_KEY is not set");
-  ai = new GoogleGenAI({ apiKey: key });
-  return ai;
-}
+const PREP_SCHEMA = {
+  type: "object",
+  properties: {
+    search_query: { type: "string" },
+    authority_hint: { type: ["string", "null"] },
+    in_scope: { type: "boolean" },
+    topic_terms: { type: "array", items: { type: "string" } },
+  },
+  required: ["search_query", "authority_hint", "in_scope", "topic_terms"],
+  additionalProperties: false,
+};
 
 export interface QueryPrepResult {
   search_query: string;
@@ -21,18 +23,16 @@ export interface QueryPrepResult {
 export async function prepareQuery(
   question: string,
 ): Promise<QueryPrepResult> {
-  const model = process.env.GEMINI_GEN_MODEL || "gemini-2.5-flash";
   try {
-    const result = await getAI().models.generateContent({
-      model,
-      contents: question,
-      config: {
-        systemInstruction: QUERY_PREP_PROMPT,
-        temperature: 0,
-        responseMimeType: "application/json",
-      },
+    const text = await chatJson({
+      system: QUERY_PREP_PROMPT,
+      user: question,
+      schemaName: "query_prep",
+      schema: PREP_SCHEMA,
+      temperature: 0,
+      maxAttempts: 2,
+      timeoutMs: 30_000,
     });
-    const text = result.text ?? "";
     const parsed = JSON.parse(text);
     return {
       search_query: parsed.search_query || question,

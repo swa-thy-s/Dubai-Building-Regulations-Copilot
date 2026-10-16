@@ -9,6 +9,7 @@ Rules:
 5. If the clauses do not answer the question, set "abstain": true and leave answer_md empty. Do not guess.
 6. Do not give legal advice and do not tell the user a design is compliant.
 7. Never introduce a number that is not in a cited clause.
+8. In answer_md, put the marker [n] right after each sentence or figure supported by claim n, where n is the 1-based position of that claim in "claims". Every claim must be marked at least once.
 Return JSON exactly matching the schema.`;
 
 export const QUERY_PREP_PROMPT = `You are a search query optimizer for a Dubai building regulations knowledge base.

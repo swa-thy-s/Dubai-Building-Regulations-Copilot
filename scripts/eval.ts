@@ -168,7 +168,7 @@ async function main() {
         r.full = { abstained: true, abstain_reason: `error: ${e}`, answer_md: "", n_citations: 0, must_include_hit: null, latency_ms: Date.now() - t0 };
       }
       r.would_abstain = r.full.abstained;
-      await new Promise((res) => setTimeout(res, 4000));
+      await new Promise((res) => setTimeout(res, parseInt(process.env.EVAL_DELAY_MS || "500", 10)));
     }
     const status = q.should_abstain
       ? r.would_abstain
