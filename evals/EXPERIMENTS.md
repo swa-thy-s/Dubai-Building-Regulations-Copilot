@@ -34,3 +34,19 @@
 - **Leak:** g-048 ("2013 edition" corridor width) passes the similarity gate. A similarity gate cannot see edition mismatch; it relies on the model abstaining. Check in the first full run.
 - **Not run:** full-pipeline run blocked by the Gemini free-tier daily quota (20 requests/day/model for gemini-3-flash). Generation metrics (answer accuracy, citation validity, p95, judge) are pending.
 - **Report:** `evals/reports/2026-10-16-a34db2c-golden60-retrieval.md`
+
+## 6. Dense vs full-text vs hybrid (spec experiment 2) (2026-10-16)
+
+- **Single change:** which ranking is used to pick the top 5 (rankings come from the same `hybrid_search` call with `match_count=100`, so each leg's 50-candidate pool is complete).
+- **Results (46 answerable, golden v1, raw question as query):**
+
+  | Mode | Recall@5 | MRR |
+  | --- | --- | --- |
+  | hybrid | 98.9% | 0.961 |
+  | dense only | 98.9% | 0.978 |
+  | full-text only | 47.8% | 0.489 |
+
+- **Finding:** the full-text leg returned no rows for 21 of 46 questions, because `websearch_to_tsquery` ANDs every word of a natural-language question. It adds little today and dense alone is as good.
+- **Caveats:** the eval uses the raw question; production feeds the keyword-rich query-prep rewrite to search, which should help full-text. Exact-term lookups (e.g. "RMU", clause numbers) are where full-text should earn its place and the golden set has few of those.
+- **Decision:** keep hybrid (no recall loss, protects exact-term queries). Candidate follow-ups: (a) full-text with OR semantics and stopword removal, (b) re-run once the query-prep rewrite can be included in the eval (needs Gemini quota), (c) add exact-term/clause-number questions to the golden set.
+- **Report:** `evals/reports/2026-10-16-5783c5d-modes.md`
