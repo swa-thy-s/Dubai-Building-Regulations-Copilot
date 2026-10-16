@@ -107,7 +107,7 @@ export default function AdminPage() {
         {loginError && <p className="mb-3 text-sm text-[var(--error)]">{loginError}</p>}
         <button
           onClick={login}
-          className="w-full rounded-lg bg-[var(--accent)] py-2 text-sm font-medium text-white hover:opacity-90"
+          className="w-full rounded-lg bg-[var(--accent-solid)] py-2 text-sm font-medium text-white hover:opacity-90"
         >
           Log in
         </button>

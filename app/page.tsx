@@ -288,7 +288,7 @@ export default function Home() {
           <button
             onClick={() => submit()}
             disabled={!canSubmit}
-            className="rounded-lg bg-[var(--accent)] px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="rounded-lg bg-[var(--accent-solid)] px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {loading ? "Asking..." : "Ask"}
           </button>
@@ -551,7 +551,7 @@ function FeedbackRow({
           />
           <button
             onClick={onSubmitComment}
-            className="rounded-lg bg-[var(--accent)] px-3 py-1 text-xs font-medium text-white hover:opacity-90"
+            className="rounded-lg bg-[var(--accent-solid)] px-3 py-1 text-xs font-medium text-white hover:opacity-90"
           >
             Send feedback
           </button>
