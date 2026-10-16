@@ -67,6 +67,16 @@ documents:
     pdf_path: "data/raw/SoiltestingGuidelines3-2.pdf"
     # Step 6 status: BLOCKED. 3-page scanned Arabic document with an OCR-noise text layer. App is English only.
 
+  - slug: dubai-real-estate-legislation
+    kind: legislation # one documents row per law; slug derived from the TOC (e.g. law-27-2007)
+    title: Dubai Real Estate Legislation
+    authority: RERA
+    edition: "2014 compilation" # (c) 2014 Government of Dubai Legal Affairs Department
+    status: current
+    source_url: null
+    repair_ligatures: true # PDF text layer drops fi/fl ligatures; repaired with a dictionary, see ingest/ligatures.py
+    pdf_path: "data/raw/Real_Estate_Legislation_en.pdf"
+
 # Module 2 (later): data/raw/Real_Estate_Legislation_en.pdf -> authority RERA
 # Not yet classified: data/raw/Sustainable-Dubai.pdf
 # Not ingestible (calculators): the .xls / .xlsx schedules

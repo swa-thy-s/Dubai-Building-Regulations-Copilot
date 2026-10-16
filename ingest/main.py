@@ -10,7 +10,7 @@ import yaml
 
 from dotenv import load_dotenv
 
-from ingest import chunk, embed, parse, qa, upsert
+from ingest import chunk, embed, legislation, parse, qa, upsert
 
 
 def load_source(slug: str) -> dict:
@@ -40,13 +40,54 @@ def run_parse(slug: str, part: str | None) -> dict:
     return data
 
 
+def run_legislation(src: dict, only: str | None, dry_run: bool) -> None:
+    """One PDF bundling several laws: one `documents` row per law, article-level chunks."""
+    laws = legislation.law_ranges(src["pdf_path"])
+    if only:
+        laws = [x for x in laws if x["slug"] == only]
+        if not laws:
+            raise SystemExit(f"No law {only!r} in {src['pdf_path']}")
+    parsed = []
+    for law in laws:
+        chunks, stats = legislation.chunk_law(src["pdf_path"], law, src.get("repair_ligatures", True))
+        data = dict(slug=law["slug"], part=law["title"], pages=[law["first"], law["last"]], stats=stats, chunks=chunks)
+        path = qa.cache_path(law["slug"], None)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=1))
+        fixes = sum(stats["ligature_fixes"].values())
+        print(f"{law['slug']:16} pages {law['first']}-{law['last']}  chunks {len(chunks):3}  ligature fixes {fixes:3}  unresolved {len(stats['unresolved_tokens'])}  empty pages {stats['empty_pages']}")
+        parsed.append((law, data))
+    if dry_run:
+        raise SystemExit("dry run: nothing embedded or uploaded")
+    texts, owners = [], []
+    for law, data in parsed:
+        meta = dict(title=law["title"], edition=law["edition"])
+        for c in data["chunks"]:
+            texts.append(embed.embed_text(meta["title"], meta["edition"], c))
+            owners.append(law["slug"])
+    vectors = embed.embed_chunks(texts)
+    sb = upsert.client()
+    pos = 0
+    for law, data in parsed:
+        n = len(data["chunks"])
+        doc_id = upsert.upsert_document(sb, dict(slug=law["slug"], title=law["title"], authority=src["authority"], edition=law["edition"], status=src.get("status", "current"), source_url=src.get("source_url")))
+        upsert.upsert_chunks(sb, doc_id, data["chunks"], vectors[pos : pos + n])
+        pos += n
+    upsert.record_embedding_model(sb)
+    print("done")
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("slug")
     ap.add_argument("--part")
+    ap.add_argument("--law", help="legislation sources only: ingest just this law slug")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
     load_dotenv(".env.local")
+    if load_source(a.slug).get("kind") == "legislation":
+        run_legislation(load_source(a.slug), a.law, a.dry_run)
+        raise SystemExit(0)
     data = run_parse(a.slug, a.part)
     print(qa.report(data, sample=5))
     if a.dry_run:

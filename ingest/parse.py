@@ -103,7 +103,13 @@ def _figure_regions(page: pymupdf.Page, table_boxes: list[tuple]) -> list[pymupd
 
 
 def find_scanned_pages(doc: pymupdf.Document, pages: list[int], min_chars: int = 40) -> list[int]:
-    return [p for p in pages if len(doc[p - 1].get_text().strip()) < min_chars]
+    """Pages that look scanned: almost no text but with an image. Truly blank pages are fine."""
+    out = []
+    for p in pages:
+        page = doc[p - 1]
+        if len(page.get_text().strip()) < min_chars and page.get_images():
+            out.append(p)
+    return out
 
 
 def detect_running_text(doc: pymupdf.Document, pages: list[int]) -> set[str]:
