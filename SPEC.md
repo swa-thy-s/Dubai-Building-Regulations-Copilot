@@ -352,7 +352,7 @@ If the call fails, fall back to the raw question. Do not block the request.
 ### 9.4 Retrieval and gate
 
 - Embed `search_query`, call `hybrid_search` with `match_count = 20`.
-- **Gate:** if the best `similarity` is below `GATE_THRESHOLD` (initial 0.55, to be calibrated in the eval step) **and** the full-text search found no hit whose rank is in the top 5, abstain with reason `gate`. Skip generation.
+- **Gate:** if the best `similarity` is below `GATE_THRESHOLD` (initial 0.55; calibrated to 0.68 on the golden set, see evals/EXPERIMENTS.md) **and** the full-text search found no hit whose rank is in the top 5, abstain with reason `gate`. Skip generation.
 - Keep the top `K_CONTEXT = 6` chunks for generation. A reranker step MAY be added behind a `RERANK=on` flag later. It is off in v1.
 
 ### 9.5 Generation
