@@ -14,6 +14,16 @@ create table documents (
   created_at timestamptz default now()
 );
 
+-- array_to_string is only STABLE, so a generated column cannot call it directly.
+-- Wrapping it as IMMUTABLE is safe here: the output depends only on the inputs.
+create or replace function chunk_fts_doc(clause_ref text, heading_path text[], content text)
+returns tsvector
+language sql immutable
+as $$
+  select to_tsvector('english',
+    coalesce(clause_ref, '') || ' ' || coalesce(array_to_string(heading_path, ' '), '') || ' ' || coalesce(content, ''))
+$$;
+
 create table chunks (
   id uuid primary key default gen_random_uuid(),
   document_id uuid not null references documents(id) on delete cascade,
@@ -27,10 +37,7 @@ create table chunks (
   token_count int,
   content_hash text not null,
   embedding vector(768),
-  fts tsvector generated always as (
-    to_tsvector('english',
-      coalesce(clause_ref,'') || ' ' || array_to_string(heading_path,' ') || ' ' || content)
-  ) stored,
+  fts tsvector generated always as (chunk_fts_doc(clause_ref, heading_path, content)) stored,
   unique (document_id, clause_ref, page_start)
 );
 create index chunks_embedding_idx on chunks using hnsw (embedding vector_cosine_ops);
