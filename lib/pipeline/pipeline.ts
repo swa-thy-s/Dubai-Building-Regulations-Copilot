@@ -52,10 +52,39 @@ export async function runPipeline(
 
   // Search
   onProgress?.({ stage: "Searching clauses" });
-  const results = await hybridSearch(searchQuery, {
-    matchCount: 20,
-    authorities: authorities?.length ? authorities : undefined,
-  });
+  let results: SearchResult[];
+  try {
+    results = await hybridSearch(searchQuery, {
+      matchCount: 20,
+      authorities: authorities?.length ? authorities : undefined,
+    });
+  } catch (e) {
+    // Embedding quota or a temporary outage must read as "at capacity", not as a crash or a false "not found".
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[pipeline] search failed:", msg);
+    const status = (e as { status?: number }).status;
+    const capacity = status === 429 || status === 503 || /\b(429|503|RESOURCE_EXHAUSTED|UNAVAILABLE)\b/.test(msg);
+    const traceId = await logQuery({
+      question,
+      rewrittenQuery: searchQuery,
+      retrieved: [],
+      answer: null,
+      abstained: true,
+      abstainReason: `search_error: ${msg.slice(0, 200)}`,
+      verifyPassed: null,
+      latencyMs: Date.now() - start,
+      model,
+      ipHash,
+    });
+    return {
+      trace_id: traceId,
+      abstained: true,
+      abstain_reason: capacity ? "capacity" : "generation_error",
+      answer_md: "",
+      conditions: [],
+      citations: [],
+    };
+  }
 
   // Gate
   const gateResult = checkGate(results, gate);
