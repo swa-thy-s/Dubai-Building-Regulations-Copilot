@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { checkRateLimit, hashIP } from "../rate-limit";
+import { checkRateLimit, checkKeyLimit, hashIP } from "../rate-limit";
 
 function fakeDb(opts: { ipCount: number; dayCount: number; oldest?: string }) {
   const inserts: unknown[] = [];
@@ -72,5 +72,16 @@ describe("hashIP", () => {
     expect(a).not.toContain("203.0.113.9");
     process.env.IP_HASH_SALT = "s2";
     expect(hashIP("203.0.113.9")).not.toBe(a);
+  });
+});
+
+describe("checkKeyLimit", () => {
+  it("allows under the limit and records, blocks at the limit", async () => {
+    const under = fakeDb({ ipCount: 4, dayCount: 0 });
+    expect(await checkKeyLimit("contact:x", 5, 3600_000, under.db, NOW)).toBe(true);
+    expect(under.inserts).toHaveLength(1);
+    const at = fakeDb({ ipCount: 5, dayCount: 0 });
+    expect(await checkKeyLimit("contact:x", 5, 3600_000, at.db, NOW)).toBe(false);
+    expect(at.inserts).toHaveLength(0);
   });
 });

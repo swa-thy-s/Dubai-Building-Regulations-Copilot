@@ -80,3 +80,21 @@ export async function checkRateLimit(
 
   return { allowed: true };
 }
+
+export async function checkKeyLimit(
+  key: string,
+  limit: number,
+  windowMs: number,
+  db: SupabaseClient = getSb(),
+  now: Date = new Date(),
+): Promise<boolean> {
+  const since = new Date(now.getTime() - windowMs).toISOString();
+  const { count } = await db
+    .from("rate_limits")
+    .select("*", { count: "exact", head: true })
+    .eq("key", key)
+    .gte("window_start", since);
+  if ((count ?? 0) >= limit) return false;
+  await db.from("rate_limits").insert({ key, window_start: now.toISOString(), count: 1 });
+  return true;
+}

@@ -46,3 +46,18 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
 }
+
+.legal h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.75rem; }
+.legal h2 { font-size: 1.15rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
+.legal h3 { font-size: 1rem; font-weight: 600; margin: 1.25rem 0 0.4rem; }
+.legal p { font-size: 0.9rem; line-height: 1.65; margin: 0.6rem 0; }
+.legal ul, .legal ol { font-size: 0.9rem; line-height: 1.65; margin: 0.6rem 0; padding-left: 1.4rem; }
+.legal ul { list-style: disc; }
+.legal ol { list-style: decimal; }
+.legal li { margin: 0.25rem 0; }
+.legal a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.legal blockquote { border-left: 3px solid var(--border); padding-left: 1rem; margin: 0.8rem 0; }
+.legal hr { border: 0; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+.legal table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 0.8rem 0; display: block; overflow-x: auto; }
+.legal th, .legal td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
+.legal th { background: var(--card); }

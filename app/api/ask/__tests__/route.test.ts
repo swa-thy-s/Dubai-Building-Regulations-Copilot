@@ -14,6 +14,11 @@ vi.mock("@/lib/pipeline/pipeline", () => ({
   runPipeline: (...a: unknown[]) => runPipeline(...a),
 }));
 
+vi.mock("@/lib/pipeline/verification", () => ({
+  getVerification: async () => ({}),
+  latestVerified: () => null,
+}));
+
 import { POST } from "../route";
 
 const post = (body: unknown) =>
@@ -62,6 +67,7 @@ describe("POST /api/ask streaming", () => {
     expect(res.headers.get("content-type")).toContain("text/event-stream");
     expect(text).toContain("event: progress");
     expect(text).toContain('"abstain_reason":"gate"');
+    expect(text).toContain("Reference tool only. Not an official ruling and not advice.");
     expect(runPipeline.mock.calls[0][2]).toBe("hash(203.0.113.9)");
   });
 
@@ -70,5 +76,6 @@ describe("POST /api/ask streaming", () => {
     const text = await (await post({ question: "q" })).text();
     expect(text).toContain("event: error");
     expect(text).not.toContain("event: result");
+    expect(text).toContain("Reference tool only. Not an official ruling and not advice.");
   });
 });

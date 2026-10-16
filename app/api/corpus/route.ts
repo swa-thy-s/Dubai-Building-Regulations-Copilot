@@ -1,14 +1,22 @@
 import { getSupabase } from "@/lib/supabase";
+import { getVerification, latestVerified, isStale } from "@/lib/pipeline/verification";
 
 export async function GET() {
   const { data, error } = await getSupabase()
     .from("documents")
-    .select("title, authority, edition, status, ingested_at:created_at")
-    .order("created_at", { ascending: false });
+    .select("slug, title, authority, edition, status, source_url, ingested_at:created_at")
+    .order("authority", { ascending: true })
+    .order("title", { ascending: true });
 
   if (error) {
     return Response.json({ error: "Failed to fetch documents" }, { status: 500 });
   }
 
-  return Response.json({ documents: data });
+  const verification = await getVerification();
+  const staleAfter = parseInt(process.env.STALE_AFTER_DAYS || "45", 10);
+  const documents = (data ?? []).map((d) => ({ ...d, last_verified: verification[d.slug] ?? null }));
+  return Response.json({
+    documents,
+    stale: isStale(latestVerified(verification), staleAfter),
+  });
 }

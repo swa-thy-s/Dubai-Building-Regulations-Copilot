@@ -2,6 +2,8 @@ import { z } from "zod/v4";
 import { headers } from "next/headers";
 import { hashIP, checkRateLimit } from "@/lib/pipeline/rate-limit";
 import { runPipeline } from "@/lib/pipeline/pipeline";
+import { answerNotice } from "@/lib/legal";
+import { getVerification, latestVerified } from "@/lib/pipeline/verification";
 
 const RequestSchema = z.object({
   question: z.string().min(1).max(500),
@@ -51,6 +53,7 @@ export async function POST(request: Request) {
         );
       }
 
+      const notice = answerNotice(await getVerification().then(latestVerified).catch(() => null));
       try {
         const result = await runPipeline(
           question,
@@ -58,9 +61,10 @@ export async function POST(request: Request) {
           ipHash,
           (p) => send("progress", p),
         );
-        send("result", result);
+        send("result", { ...result, notice });
       } catch (e) {
         send("error", {
+          notice,
           error: "Internal error",
           message: e instanceof Error ? e.message : "Unknown error",
         });
