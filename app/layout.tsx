@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     "Ask questions about Dubai building codes. Answers are grounded in indexed regulation documents with clause-level citations.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"

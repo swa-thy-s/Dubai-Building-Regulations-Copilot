@@ -22,8 +22,9 @@ REPLACEMENTS = ["fi", "fl", "ff", "ffi", "ffl"]
 @lru_cache(maxsize=1)
 def _vocab() -> frozenset[str]:
     words: set[str] = set()
-    if DICT.exists():
-        words.update(w.strip().lower() for w in DICT.read_text(errors="ignore").splitlines() if w.strip())
+    if not DICT.exists():
+        raise RuntimeError(f"{DICT} not found. Install a word list (apt: wamerican) before repairing ligatures.")
+    words.update(w.strip().lower() for w in DICT.read_text(errors="ignore").splitlines() if w.strip())
     for f in glob.glob(CLEAN_CACHE):
         for c in json.loads(Path(f).read_text())["chunks"]:
             words.update(w.lower() for w in TOKEN_RE.findall(c["content"]))
