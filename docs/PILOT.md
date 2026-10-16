@@ -32,3 +32,19 @@ A link to the app and a one-page brief:
 - [ ] Owner spot check of Step 1 (`data/spotcheck_part_b.md`) confirmed.
 - [ ] Architect verifies the 40 new golden questions (g-021 to g-060), especially gold answers.
 - [ ] 3 to 5 firms identified and given the brief above.
+
+## Owner setup still open
+- [ ] GitHub, Settings > Secrets and variables > Actions > **Variables**: add `APP_URL` = `https://dubai-building-regulations-copilot.vercel.app` (keep-alive workflow).
+- [ ] GitHub **Secrets** for the PR retrieval eval in `.github/workflows/ci.yml`: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`. Without them the `retrieval-eval` job fails; `checks` still runs.
+- [ ] Before the pilot: clear dev/test rows from `query_logs` (rows with `ip_hash = 'eval'` are already hidden in `/admin`; manual test questions are not).
+
+## Step 6 document decisions (see `ingest/sources.yaml`)
+| Document | State | Needs from owner |
+| --- | --- | --- |
+| Dubai Building Code Circular (17 Jan 2022) | Clean 1-page English letter; chunker gives 0 chunks | Worth indexing? Then a letter adapter |
+| Al Sa'fat Green Building System 2nd ed. 2023 | Pages stamped "SHARED - CONFIDENTIAL" | Confirm it may be indexed and quoted |
+| Dubai Wind Code | English, but cover says "Draft Copy 2013" | Allow answers from a draft? Edition badge would say so |
+| Seismic Design Code | Garbled text layer (font encoding); numbers untrustworthy | An official clean copy, or approve OCR plus a full manual check |
+| Structural Codes Guidelines, Soil Testing Guidelines | Scanned Arabic, 6 and 3 pages | English versions, or leave out (app is English only) |
+
+The ingestion chunker is outline-driven and built for the DBC. Each new document type needs an adapter and its own spot check (spec 7.5) before it goes live.
