@@ -83,3 +83,14 @@ def test_long_article_splits_on_numbered_items(tmp_path):
 def test_prefers_exact_words_and_accepts_british_spelling():
     fixes, unresolved = Counter(), Counter()
     assert ligatures.repair("ffty days to fnalise", fixes, unresolved) == "fifty days to finalise"
+
+
+def test_hard_split_overlaps_so_rows_at_a_boundary_stay_whole():
+    words = [f"w{i}" for i in range(2000)]
+    parts = L.hard_split([" ".join(words)])
+    assert len(parts) > 1
+    first, second = parts[0][0].split(), parts[1][0].split()
+    assert first[-60:] == second[:60]
+    assert all(L.tokens(p[0]) <= 700 * 1.1 for p in parts)
+    assert " ".join(parts[-1][0].split()[-1:]) == "w1999"
+    assert L.hard_split(["short text"]) == [["short text"]]

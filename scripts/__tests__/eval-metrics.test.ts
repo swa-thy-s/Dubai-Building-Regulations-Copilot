@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { chunkRefMatches, scoreRetrieval, mustIncludeHit } from "../eval-metrics";
+import { chunkRefMatches, scoreRetrieval, mustIncludeHit, qualify } from "../eval-metrics";
 
 describe("chunkRefMatches", () => {
   it("matches the clause ref after the slug", () => {
@@ -7,6 +7,11 @@ describe("chunkRefMatches", () => {
   });
   it("ignores split markers like (1/2)", () => {
     expect(chunkRefMatches("dbc-2021#B.4.2.3", "B.4.2.3 (2/2)")).toBe(true);
+  });
+  it("does not match the same clause number in a different document", () => {
+    expect(chunkRefMatches("law-27-2007#Article 8", qualify("law-27-2007", "Article 8"))).toBe(true);
+    expect(chunkRefMatches("law-27-2007#Article 8", qualify("law-26-2007", "Article 8"))).toBe(false);
+    expect(chunkRefMatches("law-27-2007#Article 8", qualify("law-27-2007", "Article 8 (2/3)"))).toBe(true);
   });
   it("does not match a prefix or a malformed gold ref", () => {
     expect(chunkRefMatches("dbc-2021#B.6.4.1", "B.6.4.1.4")).toBe(false);

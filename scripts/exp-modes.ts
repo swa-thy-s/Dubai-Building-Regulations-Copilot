@@ -5,18 +5,20 @@ config({ path: ".env.local" });
 import * as fs from "fs";
 import { execSync } from "child_process";
 import { hybridSearch, type SearchResult } from "../lib/pipeline/search";
-import { scoreRetrieval } from "./eval-metrics";
+import { scoreRetrieval, qualify } from "./eval-metrics";
+import { getDocuments, docOf } from "../lib/pipeline/documents";
 
 type Mode = "hybrid" | "dense" | "fts";
 const modes: Mode[] = ["hybrid", "dense", "fts"];
 
-function order(results: SearchResult[], mode: Mode): string[] {
-  if (mode === "hybrid") return results.map((r) => r.clause_ref);
+function order(results: SearchResult[], mode: Mode, docs: Awaited<ReturnType<typeof getDocuments>>): string[] {
+  const q = (r: SearchResult) => qualify(docOf(docs, r.document_id).slug, r.clause_ref);
+  if (mode === "hybrid") return results.map(q);
   const key = mode === "dense" ? "vector_rank" : "text_rank";
   return results
     .filter((r) => r[key] !== null)
     .sort((a, b) => (a[key] as number) - (b[key] as number))
-    .map((r) => r.clause_ref);
+    .map(q);
 }
 
 async function main() {
@@ -34,11 +36,12 @@ async function main() {
   };
   let ftsEmpty = 0;
 
+  const docs = await getDocuments();
   for (const q of golden) {
     const res = await hybridSearch(q.question, { matchCount: 100 });
     if (!res.some((r) => r.text_rank !== null)) ftsEmpty++;
     for (const m of modes) {
-      const s = scoreRetrieval(q.gold_chunks, order(res, m), 6);
+      const s = scoreRetrieval(q.gold_chunks, order(res, m, docs), 6);
       agg[m].r5.push(s.recallAt5);
       agg[m].mrr.push(s.mrr);
       (agg[m].byType[q.type] ||= []).push(s.recallAt5);

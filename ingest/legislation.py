@@ -59,6 +59,24 @@ def _mk(ref, path, part, p0, p1, content) -> dict:
     )
 
 
+def hard_split(lines: list[str], limit: int = MAX_TOKENS, overlap_words: int = 60) -> list[list[str]]:
+    """Last resort for a long run with no numbered items: overlapping word windows.
+
+    The overlap keeps a table row that straddles a boundary whole in at least one window.
+    """
+    if tokens(" ".join(lines)) <= limit * 1.5:
+        return [lines]
+    words = " ".join(lines).split()
+    step = int(limit / 1.35)
+    out, i = [], 0
+    while i < len(words):
+        out.append([" ".join(words[i : i + step])])
+        if i + step >= len(words):
+            break
+        i += step - overlap_words
+    return out
+
+
 def _split_items(lines: list[str]) -> list[list[str]]:
     """Group lines into numbered items so a long article splits on item boundaries.
 
@@ -111,6 +129,7 @@ def chunk_law(pdf_path: str, law: dict, repair_ligatures: bool = True) -> tuple[
                 buf = buf + g
         if buf:
             pieces.append(buf)
+        pieces = [q for piece in pieces for q in hard_split(piece)]
         for k, piece in enumerate(pieces):
             ref = cur_ref if len(pieces) == 1 else f"{cur_ref} ({k + 1}/{len(pieces)})"
             seen[ref] += 1

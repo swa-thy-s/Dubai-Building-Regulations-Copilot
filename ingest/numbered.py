@@ -17,7 +17,7 @@ import pymupdf
 
 from ingest import ligatures
 from ingest.chunk import tokens
-from ingest.legislation import _split_items
+from ingest.legislation import _split_items, hard_split
 
 MAX_TOKENS = 700
 
@@ -81,7 +81,7 @@ def chunk_numbered(pdf_path: str, cfg: dict, label: str, repair_ligatures: bool 
                 buf = buf + g
         if buf:
             pieces.append(buf)
-        pieces = [q for piece in pieces for q in _hard_split(piece)]
+        pieces = [q for piece in pieces for q in hard_split(piece)]
         for k, piece in enumerate(pieces):
             ref = cur["ref"] if len(pieces) == 1 else f"{cur['ref']} ({k + 1}/{len(pieces)})"
             seen[ref] += 1
@@ -130,15 +130,6 @@ def chunk_numbered(pdf_path: str, cfg: dict, label: str, repair_ligatures: bool 
         ligature_fixes=dict(fixes), unresolved_tokens=dict(unresolved.most_common(40)), skipped_pages=[], empty_pages=empty,
     )
     return chunks, stats
-
-
-def _hard_split(lines: list[str]) -> list[list[str]]:
-    """Last resort for a long run with no numbered items: cut into word windows."""
-    if tokens(" ".join(lines)) <= MAX_TOKENS * 1.5:
-        return [lines]
-    words = " ".join(lines).split()
-    step = int(MAX_TOKENS / 1.35)
-    return [[" ".join(words[i : i + step])] for i in range(0, len(words), step)]
 
 
 def _split_text(text: str) -> list[str]:

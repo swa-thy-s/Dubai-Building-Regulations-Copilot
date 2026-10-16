@@ -10,7 +10,7 @@ import yaml
 
 from dotenv import load_dotenv
 
-from ingest import chunk, embed, legislation, numbered, parse, qa, upsert
+from ingest import chunk, embed, legislation, numbered, parse, qa, rotated, upsert, verify_chunks
 
 
 def load_source(slug: str) -> dict:
@@ -42,6 +42,9 @@ def run_parse(slug: str, part: str | None) -> dict:
     toc, part_name = chunk.load_toc(pdf, first, last)
     rows = parse.extract_rows(pdf, pages)
     chunks, stats = chunk.chunk_rows(rows, toc, part_name)
+    stats["reversed_cells_fixed"] = rotated.repair_chunks(chunks)
+    chunks, scrambled = verify_chunks.drop_scrambled_tables(doc, chunks)
+    stats["dropped_tables"] = list(stats.get("dropped_tables", [])) + [f"SCRAMBLED {x}" for x in scrambled]
     data = dict(slug=slug, part=part_name or part, pages=[first, last], stats=stats, chunks=chunks)
     path = qa.cache_path(slug, part)
     path.parent.mkdir(parents=True, exist_ok=True)

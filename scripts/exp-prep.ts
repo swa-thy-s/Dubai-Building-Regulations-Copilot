@@ -5,11 +5,14 @@ config({ path: ".env.local" });
 import * as fs from "fs";
 import { hybridSearch } from "../lib/pipeline/search";
 import { prepareQuery } from "../lib/pipeline/query-prep";
-import { scoreRetrieval } from "./eval-metrics";
+import { scoreRetrieval, qualify } from "./eval-metrics";
+import { getDocuments, docOf } from "../lib/pipeline/documents";
 
 async function main() {
   const golden = fs.readFileSync("evals/golden.jsonl", "utf-8").trim().split("\n").map((l) => JSON.parse(l)).filter((q) => !q.should_abstain && q.gold_chunks.length);
   const rows: { raw: ReturnType<typeof scoreRetrieval>; prep: ReturnType<typeof scoreRetrieval>; ms: number; q: string; sq: string }[] = [];
+  const docs = await getDocuments();
+  const refs = (rs: Awaited<ReturnType<typeof hybridSearch>>) => rs.map((r) => qualify(docOf(docs, r.document_id).slug, r.clause_ref));
   let i = 0;
   async function worker() {
     while (i < golden.length) {
@@ -18,7 +21,7 @@ async function main() {
       const p = await prepareQuery(q.question);
       const ms = Date.now() - t;
       const [a, b] = await Promise.all([hybridSearch(q.question, { matchCount: 20 }), hybridSearch(p.search_query, { matchCount: 20 })]);
-      rows.push({ raw: scoreRetrieval(q.gold_chunks, a.map((r) => r.clause_ref), 6), prep: scoreRetrieval(q.gold_chunks, b.map((r) => r.clause_ref), 6), ms, q: q.question, sq: p.search_query });
+      rows.push({ raw: scoreRetrieval(q.gold_chunks, refs(a), 6), prep: scoreRetrieval(q.gold_chunks, refs(b), 6), ms, q: q.question, sq: p.search_query });
     }
   }
   await Promise.all([worker(), worker(), worker()]);

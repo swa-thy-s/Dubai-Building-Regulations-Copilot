@@ -27,6 +27,8 @@ def _vocab() -> frozenset[str]:
     words.update(w.strip().lower() for w in DICT.read_text(errors="ignore").splitlines() if w.strip())
     for f in glob.glob(CLEAN_CACHE):
         for c in json.loads(Path(f).read_text())["chunks"]:
+            if c["content_type"] == "table":  # table text can be garbled (rotated tables read backwards)
+                continue
             words.update(w.lower() for w in TOKEN_RE.findall(c["content"]))
     return frozenset(words)
 

@@ -11,7 +11,8 @@ import * as path from "path";
 import { createClient } from "@supabase/supabase-js";
 import { hybridSearch, type SearchResult } from "../lib/pipeline/search";
 import { runPipeline } from "../lib/pipeline/pipeline";
-import { scoreRetrieval, mustIncludeHit } from "./eval-metrics";
+import { scoreRetrieval, mustIncludeHit, qualify } from "./eval-metrics";
+import { getDocuments, docOf } from "../lib/pipeline/documents";
 
 interface GoldenQuestion {
   id: string;
@@ -113,7 +114,8 @@ async function evalQuestion(
   }
   const latency = Date.now() - start;
 
-  const retrievedRefs = results.map((r) => r.clause_ref);
+  const docs = await getDocuments();
+  const retrievedRefs = results.map((r) => qualify(docOf(docs, r.document_id).slug, r.clause_ref));
   const top5Refs = retrievedRefs.slice(0, 5);
 
   const { recallAt5, recallAtK, mrr } = scoreRetrieval(q.gold_chunks, retrievedRefs, k);

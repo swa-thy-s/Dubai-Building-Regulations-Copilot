@@ -1,8 +1,14 @@
+// Gold refs look like "<document slug>#<clause_ref>". Retrieved refs should be qualified the same way so
+// "Article 8" in one law never matches "Article 8" in another. An unqualified retrieved ref matches on the clause only.
 export function chunkRefMatches(goldRef: string, retrievedRef: string): boolean {
   const parts = goldRef.split("#");
   if (parts.length !== 2) return false;
   const base = retrievedRef.replace(/\s*\(\d+\/\d+\)$/, "").trim();
-  return base === parts[1];
+  return base.includes("#") ? base === goldRef : base === parts[1];
+}
+
+export function qualify(slug: string, clauseRef: string): string {
+  return `${slug}#${clauseRef}`;
 }
 
 export function scoreRetrieval(goldChunks: string[], retrievedRefs: string[], k: number) {
