@@ -4,7 +4,7 @@
 
 The owner, an independent individual, operates Dubai Regulations Copilot. This policy explains what data the Service handles. We keep it to the minimum needed. There are no accounts, no advertising and no sale of data.
 
-### 4.1 What we collect
+## 4.1 What we collect
 
 | Data | Why | Kept for |
 | --- | --- | --- |
@@ -18,7 +18,7 @@ We do **not** ask for your name or email, and we do not use advertising or track
 
 **Please do not type personal, confidential or commercially sensitive information into the question box.** Anything you type may be stored and sent to the providers below.
 
-### 4.2 Who processes your data
+## 4.2 Who processes your data
 
 | Provider | Role |
 | --- | --- |
@@ -32,18 +32,18 @@ We do **not** ask for your name or email, and we do not use advertising or track
 
 These providers may process data in countries other than yours. We do not sell your data and do not share it with anyone else, except where the law requires.
 
-### 4.3 Legal bases and your rights
+## 4.3 Legal bases and your rights
 
 We process the data above to run and secure the Service and to improve its accuracy (our legitimate interest). Depending on where you live, including under the UAE Personal Data Protection Law and, where applicable, other data protection laws, you may have the right to ask for access to, correction of, or deletion of your data, and to object to processing. Because we do not know who you are, include the **exact text of your question and the approximate time** so we can find it. Use the [contact form](/contact). We will reply within a reasonable time and, where required, within the period the law sets.
 
-### 4.4 Security
+## 4.4 Security
 
 Data is stored with the providers above, access is limited to the owner, database access is restricted to the server, and keys are not exposed to browsers. No system is perfectly secure and we cannot guarantee absolute security.
 
-### 4.5 Children
+## 4.5 Children
 
 The Service is for professionals and is not directed at anyone under 18. Do not use it if you are under 18.
 
-### 4.6 Changes and contact
+## 4.6 Changes and contact
 
 We may update this policy. The date above shows the latest version. Questions: use the [contact form](/contact).

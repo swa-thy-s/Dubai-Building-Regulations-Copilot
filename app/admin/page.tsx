@@ -232,6 +232,27 @@ export default function AdminPage() {
           </div>
         )}
       </section>
+
+      {/* Contact messages */}
+      <section className="mt-8">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--muted)]">
+          Contact messages
+        </h2>
+        {stats.feedback.filter((f) => f.comment?.startsWith("[contact]")).length === 0 ? (
+          <p className="text-sm text-[var(--muted)]">No contact messages yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {stats.feedback
+              .filter((f) => f.comment?.startsWith("[contact]"))
+              .map((f) => (
+                <div key={f.id} className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-3 text-sm">
+                  <p className="text-xs text-[var(--muted)]">{new Date(f.created_at).toLocaleString()}</p>
+                  <p className="mt-1 whitespace-pre-wrap">{f.comment?.replace(/^\[contact\]\s*/, "")}</p>
+                </div>
+              ))}
+          </div>
+        )}
+      </section>
     </main>
   );
 }

@@ -1,3 +1,5 @@
+> Everything that needs the owner is collected in [OWNER_CHECKLIST.md](OWNER_CHECKLIST.md).
+
 # Pilot plan (Step 5)
 
 ## What testers get
