@@ -12,9 +12,11 @@ documents:
   - slug: dbc-circular
     title: Dubai Building Code Circular
     authority: DM
-    edition: TODO # confirm what this circular is and its date
+    edition: "17 Jan 2022 (ref DP-VP-CS-GEN-0008-2022)" # from the letter itself
     status: current
     source_url: null
+    # Step 6 status 2026-10-16: 1-page customer letter about DEWA regulations in the DBC. Chunker returns 0 chunks
+    # (outline-driven, DBC only). Needs a letter/plain-text adapter, then owner confirmation it is worth indexing.
     pdf_path: "data/raw/Dubai Building Code Circular EN.pdf"
 
   - slug: alsafat-2023
@@ -23,15 +25,19 @@ documents:
     edition: "2nd ed. 2023"
     status: current
     source_url: null
+    # Step 6 status: pages are stamped "SHARED - CONFIDENTIAL". Owner must confirm it may be indexed and quoted
+    # before ingestion. 1,604 outline entries, 75 pages; needs its own chunker.
     pdf_path: "data/raw/Al-Safat-–-Dubai-Green-Building-System-2nd-editionJan2023.pdf"
 
   - slug: dbc-wind
     title: Dubai Wind Code
     authority: DM
-    edition: TODO
+    edition: "Draft Copy 2013" # cover says "Draft Copy, Dubai Municipality 2013"
     status: current
     source_url: null
     pdf_path: "data/raw/DubaiWindCode6-2.pdf"
+    # Step 6 status: English, 25 pages, but it is a DRAFT. Owner decides whether answers may rest on a draft
+    # (edition badge would read "Draft Copy 2013"). Chunker returns 0 chunks; needs an adapter.
 
   - slug: dbc-seismic
     title: Seismic Design Code for Dubai
@@ -40,6 +46,8 @@ documents:
     status: current
     source_url: null
     pdf_path: "data/raw/DB_SEISMIC-DESIGN-CODEF-OR-DUBAI.pdf"
+    # Step 6 status: BLOCKED. Text layer is garbled by a shifted font encoding (e.g. "SEISMIC ANALYSIS" extracts as
+    # "$ 6(,60,&$1$/<6,6"), so digits and units cannot be trusted. Needs OCR or an official clean copy.
 
   - slug: dbc-structural
     title: Structural Codes Guidelines
@@ -48,6 +56,7 @@ documents:
     status: current
     source_url: null
     pdf_path: "data/raw/StructuralCodesguidelines4-2.pdf"
+    # Step 6 status: BLOCKED. 6-page scanned Arabic document with an OCR-noise text layer. App is English only.
 
   - slug: dbc-soil
     title: Soil Testing Guidelines
@@ -56,6 +65,7 @@ documents:
     status: current
     source_url: null
     pdf_path: "data/raw/SoiltestingGuidelines3-2.pdf"
+    # Step 6 status: BLOCKED. 3-page scanned Arabic document with an OCR-noise text layer. App is English only.
 
 # Module 2 (later): data/raw/Real_Estate_Legislation_en.pdf -> authority RERA
 # Not yet classified: data/raw/Sustainable-Dubai.pdf
