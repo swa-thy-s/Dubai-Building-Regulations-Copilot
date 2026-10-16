@@ -75,6 +75,13 @@ interface QuestionResult {
   };
 }
 
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<T>((_, rej) => setTimeout(() => rej(new Error(`timeout after ${ms}ms`)), ms)),
+  ]);
+}
+
 async function evalQuestion(
   q: GoldenQuestion,
   k: number,
@@ -83,9 +90,9 @@ async function evalQuestion(
   const start = Date.now();
   let results: SearchResult[];
   try {
-    results = await hybridSearch(q.question, {
+    results = await withTimeout(hybridSearch(q.question, {
       authorities: q.authority === "Trakhees" ? ["Trakhees"] : undefined,
-    });
+    }), 60_000);
   } catch (e) {
     console.error(`  ✗ ${q.id}: search failed: ${e}`);
     return {
@@ -155,7 +162,10 @@ async function main() {
     if (!retrievalOnly) {
       const t0 = Date.now();
       try {
-        const p = await runPipeline(q.question, q.authority === "Trakhees" ? ["Trakhees"] : undefined, "eval");
+        const p = await withTimeout(
+          runPipeline(q.question, q.authority === "Trakhees" ? ["Trakhees"] : undefined, "eval"),
+          180_000,
+        );
         r.full = {
           abstained: p.abstained,
           abstain_reason: p.abstain_reason,

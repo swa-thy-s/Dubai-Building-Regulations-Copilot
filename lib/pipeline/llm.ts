@@ -33,7 +33,7 @@ export async function chatJson(opts: ChatJsonOptions): Promise<string> {
   for (let attempt = 0; attempt < attempts; attempt++) {
     const last = attempt === attempts - 1;
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), opts.timeoutMs ?? 90_000);
+    const timer = setTimeout(() => ctrl.abort(), opts.timeoutMs ?? 25_000);
     try {
       const res = await fetch(`${base}/chat/completions`, {
         method: "POST",
@@ -67,7 +67,8 @@ export async function chatJson(opts: ChatJsonOptions): Promise<string> {
     } catch (e) {
       if (e instanceof LlmError) throw e;
       if (!last) {
-        await sleep(backoff * 2 ** attempt);
+        // Stalled or dropped request: retry promptly rather than wait out a slow replica.
+        await sleep(Math.min(backoff, 500));
         continue;
       }
       throw new LlmError(`LLM network error: ${e instanceof Error ? e.message : String(e)}`, 503);

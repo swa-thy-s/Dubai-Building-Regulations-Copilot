@@ -42,13 +42,15 @@ export async function runPipeline(
   const k = parseInt(process.env.K_CONTEXT || "6", 10);
   const model = llmModel();
 
-  // Query prep
-  onProgress?.({ stage: "Rewriting query" });
-  const prep = await prepareQuery(question);
+  // Query prep is opt-in: on the golden set it did not improve retrieval and added seconds of latency.
+  let searchQuery = question;
+  if (process.env.QUERY_PREP === "on") {
+    onProgress?.({ stage: "Rewriting query" });
+    searchQuery = (await prepareQuery(question)).search_query || question;
+  }
 
   // Search
   onProgress?.({ stage: "Searching clauses" });
-  const searchQuery = prep.search_query || question;
   const results = await hybridSearch(searchQuery, {
     matchCount: 20,
     authorities: authorities?.length ? authorities : undefined,

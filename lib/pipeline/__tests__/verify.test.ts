@@ -85,4 +85,31 @@ describe("verify", () => {
     const result = verify(gen, chunks);
     expect(result.passed).toBe(true);
   });
+
+  const table = chunk(
+    "t1",
+    "Table B.21",
+    "Table B.21 Minimum space dimensions\n| Door opening in stall | Width (mm) | Length (mm) |\n| --- | --- | --- |\n| Inside | 900 | 1,500 |\n| Outside | 900 | 1,250 |",
+  );
+  const answer = (md: string): GenerationResult => ({
+    abstain: false,
+    answer_md: md,
+    claims: [{ text: "t", chunk_ids: ["t1"] }],
+    conditions: [],
+  });
+
+  it("accepts table values whose unit lives in the column header", () => {
+    const r = verify(answer("Inside-opening stalls need 900 mm by 1,500 mm [1]."), [table]);
+    expect(r.passed).toBe(true);
+  });
+
+  it("still rejects a number that is not in the cited table", () => {
+    const r = verify(answer("Inside-opening stalls need 900 mm by 1,600 mm [1]."), [table]);
+    expect(r.passed).toBe(false);
+  });
+
+  it("does not match a number inside a longer number", () => {
+    const longer = chunk("t1", "X", "Capacity is 21,500 mm in total.");
+    expect(verify(answer("Use 1,500 mm [1]."), [longer]).passed).toBe(false);
+  });
 });

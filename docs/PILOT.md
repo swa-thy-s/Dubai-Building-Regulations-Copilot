@@ -14,21 +14,21 @@ A link to the app and a one-page brief:
 3. Rerun `pnpm eval --tag week-N`, commit the report, add a line to `evals/EXPERIMENTS.md`.
 4. Check abstain rate, thumbs-down rate, p95 latency against the table below.
 
-## Metrics against targets (golden v1, 60 questions)
+## Metrics against targets (golden v1, 60 questions, K2 Horizon, 2026-10-16)
 
 | Layer | Metric | Target | Latest | Status |
 | --- | --- | --- | --- | --- |
-| Retrieval | Recall@5 | 85% or more | 98.9% | Met (retrieval-only, 2026-10-16) |
+| Retrieval | Recall@5 | 85% or more | 98.9% | Met |
 | Retrieval | MRR | Track | 0.972 | Tracked |
-| Abstention | Abstain precision | 90% or more | 92.9% (13/14, gate only) | Met on gate alone |
-| Abstention | Over-refusal | 10% or less | 0% | Met |
-| Generation | Citation validity | 100% | Enforced by `verify` | Pending full run |
-| Generation | Answer accuracy (`must_include`) | 85% or more | not measured | Blocked: Gemini daily quota |
-| Generation | Faithfulness, completeness (judge) | Average 4 or more | not measured | Blocked: quota, and needs owner hand-grading of 20 answers (spec 11.4) |
-| Ops | p95 latency | Under 8 s | not measured end to end | Blocked: quota |
+| Generation | Citation validity | 100% | `verify` rejects unknown clause ids, unsupported numbers and orphan markers; 0 invalid citations shipped | Met (enforced in code) |
+| Generation | Answer accuracy (`must_include`) | 85% or more | 95.7% (before the g-010 verify fix; g-010 now passes) | Met |
+| Generation | Faithfulness, completeness (judge) | Average 4 or more | not measured | Needs owner hand-grading of 20 answers (spec 11.4) |
+| Abstention | Abstain precision | 90% or more | 100% | Met |
+| Abstention | Over-refusal | 10% or less | 2.2% (1 of 46, g-010, since fixed) | Met |
+| Ops | p95 latency | Under 8 s | 5.7 s (eval; production p95 comes from `/admin`) | Met |
 
 ## Before inviting testers
-- [ ] Gemini capacity: free tier gives about 20 requests per day per model, and each question uses 2. Enable billing on the Google AI project or move to a model with a larger quota.
+- [x] LLM capacity: generation now runs on K2 Horizon (no daily cap seen). Gemini is used only for embeddings.
 - [ ] Owner spot check of Step 1 (`data/spotcheck_part_b.md`) confirmed.
 - [ ] Architect verifies the 40 new golden questions (g-021 to g-060), especially gold answers.
 - [ ] 3 to 5 firms identified and given the brief above.

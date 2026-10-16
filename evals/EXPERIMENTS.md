@@ -50,3 +50,19 @@
 - **Caveats:** the eval uses the raw question; production feeds the keyword-rich query-prep rewrite to search, which should help full-text. Exact-term lookups (e.g. "RMU", clause numbers) are where full-text should earn its place and the golden set has few of those.
 - **Decision:** keep hybrid (no recall loss, protects exact-term queries). Candidate follow-ups: (a) full-text with OR semantics and stopword removal, (b) re-run once the query-prep rewrite can be included in the eval (needs Gemini quota), (c) add exact-term/clause-number questions to the golden set.
 - **Report:** `evals/reports/2026-10-16-5783c5d-modes.md`
+
+## 7. Generation on K2 Horizon: full pipeline, 60 questions (2026-10-16)
+
+- **Change:** generation and query prep moved from Gemini (free-tier quota exhausted) to `IFM/K2-Horizon-375B-A23B` via an OpenAI-compatible endpoint. Embeddings unchanged (Gemini, 768-dim). Query prep still on.
+- **Results:** Recall@5 98.9%, MRR 0.972, abstain precision 100%, over-refusal 2.2%, answer accuracy 95.7%, **p95 latency 41 s** (p50 7 s), verify abstains 1, generation errors 0.
+- **Finding:** latency is bimodal. Normal calls take 2-15 s, but some long generations stall for about 65-75 s (looks like a stuck server replica timing out at 60 s and retrying). Tiny requests never stall, with or without gaps, so it is not rate limiting. `reasoning_effort: "low"` did not help (8-question benchmark, noisy).
+- **Report:** `evals/reports/2026-10-16-727c50b-k2-horizon-full.md`
+
+## 8. Drop query prep, 25 s request timeout with early retry (2026-10-16)
+
+- **Retrieval-only check (46 answerable):** raw question R@5 98.9% / MRR 0.972; query-prep rewrite R@5 98.9% / MRR 0.953, plus 2-4 s. The rewrite does not help.
+- **Change:** query prep is now opt-in (`QUERY_PREP=on`, default off); LLM timeout 25 s with prompt retry instead of 90 s.
+- **Results:** Recall@5 98.9%, MRR 0.972, abstain precision 100%, over-refusal 2.2%, answer accuracy 95.7%, **p95 latency 5.7 s** (target under 8 s).
+- **Failures:** g-010 abstained on `verify` (real bug: verify compared "1500" against the table cell "1,500" and rejected a correct table answer). Fixed in `verify.ts` with a comma-insensitive, boundary-aware number match plus tests; g-010 then answered correctly. g-049's `must_include` ("FLSC") was brittle and was changed to "stair".
+- **Not yet done:** LLM-judge faithfulness/completeness (needs owner hand-grading, spec 11.4). A clean rerun after the verify fix is still to do.
+- **Report:** `evals/reports/2026-10-16-727c50b-k2-noprep-timeout25.md`

@@ -37,15 +37,18 @@ export function verify(
       const text = chunkTexts.get(cid);
       if (!text) return false;
       const normalizedText = text.replace(/,/g, "").replace(/\s+/g, " ");
-      return normalizedText.includes(normalized.replace(/\s+/g, " "));
+      const needle = normalized.replace(/\s+/g, " ").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return new RegExp(`(?<![\\d.])${needle}`).test(normalizedText);
     });
     if (!foundInChunk) {
       // Also check without commas in the number
       const numOnly = normalized.replace(/[^\d.]/g, "");
-      const anyChunkHasNum = citedChunkIds.some((cid) => {
-        const text = chunkTexts.get(cid) ?? "";
-        return text.includes(numOnly);
-      });
+      // Table cells carry the unit in the header, so accept the bare number as a whole
+      // number (comma-insensitive) in a cited chunk.
+      const bare = new RegExp(`(?<![\\d.])${numOnly.replace(/\./g, "\\.")}(?!\\d)`);
+      const anyChunkHasNum = citedChunkIds.some((cid) =>
+        bare.test((chunkTexts.get(cid) ?? "").replace(/(\d),(?=\d)/g, "$1")),
+      );
       if (!anyChunkHasNum) {
         failures.push(
           `Number "${numStr.trim()}" in answer not found in any cited chunk`,
