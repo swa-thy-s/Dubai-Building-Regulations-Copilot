@@ -245,7 +245,7 @@ export default function Home() {
             onClick={() => setAuthority(a)}
             className={`rounded-full border px-3 py-1 text-sm font-medium transition-colors ${
               authority === a
-                ? "border-[var(--accent)] bg-[var(--accent-light)] text-[var(--accent)]"
+                ? "border-[var(--accent)] bg-[var(--accent-light)] text-[var(--foreground)]"
                 : "border-[var(--border)] text-[var(--muted)] hover:border-[var(--accent)]"
             }`}
           >
