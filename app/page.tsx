@@ -22,7 +22,7 @@ interface PipelineResult {
   citations: Citation[];
 }
 
-type Authority = "All" | "DM" | "Trakhees";
+type Authority = "All" | "DM" | "Trakhees" | "RERA";
 
 const EXAMPLES = [
   "What is the minimum corridor width for an office building?",
@@ -245,7 +245,7 @@ export default function Home() {
 
       {/* Authority filter */}
       <div className="mb-4 flex gap-2" role="radiogroup" aria-label="Authority filter">
-        {(["All", "DM", "Trakhees"] as Authority[]).map((a) => (
+        {(["All", "DM", "Trakhees", "RERA"] as Authority[]).map((a) => (
           <button
             key={a}
             role="radio"
@@ -257,7 +257,7 @@ export default function Home() {
                 : "border-[var(--border)] text-[var(--muted)] hover:border-[var(--accent)]"
             }`}
           >
-            {a === "DM" ? "Municipality" : a === "Trakhees" ? "Trakhees" : "All"}
+            {a === "DM" ? "Municipality" : a === "Trakhees" ? "Trakhees" : a === "RERA" ? "Real estate (RERA)" : "All"}
           </button>
         ))}
       </div>
@@ -448,9 +448,8 @@ function AbstainCard({ reason }: { reason: string | null }) {
       </p>
       {!isOutOfScope && (
         <p className="mt-2 text-xs text-[var(--muted)]">
-          The answer may exist in a document that has not yet been indexed. Currently, only select
-          parts of the Dubai Building Code (2021) are available.
-        </p>
+          The answer may be in a document that has not been indexed. This tool only covers the documents listed under &ldquo;What&rsquo;s indexed&rdquo;.
+          </p>
       )}
     </div>
   );

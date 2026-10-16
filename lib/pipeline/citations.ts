@@ -1,5 +1,6 @@
 import type { GenerationResult } from "./generate";
 import type { SearchResult } from "./search";
+import { docOf, type DocInfo } from "./documents";
 
 export interface Citation {
   n: number;
@@ -17,6 +18,7 @@ const QUOTE_MAX = 1200;
 export function buildCitations(
   gen: GenerationResult,
   context: SearchResult[],
+  docs: Map<string, DocInfo>,
 ): { citations: Citation[]; answer_md: string } {
   const order: string[] = [];
   for (const claim of gen.claims) {
@@ -26,12 +28,13 @@ export function buildCitations(
 
   const citations = order.map((id, i) => {
     const chunk = context.find((c) => c.chunk_id === id);
+    const doc = docOf(docs, chunk?.document_id ?? "");
     return {
       n: i + 1,
       chunk_id: id,
-      document: "Dubai Building Code",
-      edition: "2021",
-      authority: "DM",
+      document: doc.title,
+      edition: doc.edition,
+      authority: doc.authority,
       clause_ref: chunk?.clause_ref ?? "",
       page: chunk?.page_start ?? 0,
       quote: (chunk?.content ?? "").slice(0, QUOTE_MAX),

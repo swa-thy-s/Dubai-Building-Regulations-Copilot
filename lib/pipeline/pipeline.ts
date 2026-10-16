@@ -6,6 +6,7 @@ import { generate, type GenerationResult } from "./generate";
 import { verify } from "./verify";
 import { llmModel } from "./llm";
 import { buildCitations, type Citation } from "./citations";
+import { getDocuments } from "./documents";
 
 export type { Citation };
 
@@ -82,12 +83,13 @@ export async function runPipeline(
   }
 
   const context = results.slice(0, k);
+  const docs = await getDocuments();
 
   // Generate
   onProgress?.({ stage: "Generating answer" });
   let gen: GenerationResult;
   try {
-    gen = await generate(question, context);
+    gen = await generate(question, context, docs);
   } catch (e) {
     const errMsg = e instanceof Error ? e.message : String(e);
     console.error("[pipeline] generation failed:", errMsg);
@@ -147,7 +149,7 @@ export async function runPipeline(
     // Retry once with feedback
     onProgress?.({ stage: "Fixing citations" });
     try {
-      gen = await generate(question, context, verifyResult.failures.join("\n"));
+      gen = await generate(question, context, docs, verifyResult.failures.join("\n"));
       verifyResult = verify(gen, context);
     } catch {
       // If retry fails, abstain
@@ -177,7 +179,7 @@ export async function runPipeline(
     };
   }
 
-  const { citations, answer_md } = buildCitations(gen, context);
+  const { citations, answer_md } = buildCitations(gen, context, docs);
 
   const traceId = await logQuery({
     question,

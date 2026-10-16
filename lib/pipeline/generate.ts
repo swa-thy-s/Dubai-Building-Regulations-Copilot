@@ -2,6 +2,7 @@ import { z } from "zod/v4";
 import { SYSTEM_PROMPT } from "./prompts";
 import { chatJson } from "./llm";
 import type { SearchResult } from "./search";
+import { docOf, type DocInfo } from "./documents";
 
 export const GenerationSchema = z.object({
   abstain: z.boolean(),
@@ -17,12 +18,14 @@ export const GenerationSchema = z.object({
 
 export type GenerationResult = z.infer<typeof GenerationSchema>;
 
-function formatChunks(chunks: SearchResult[]): string {
+const attr = (v: string) => v.replace(/"/g, "'");
+
+function formatChunks(chunks: SearchResult[], docs: Map<string, DocInfo>): string {
   return chunks
-    .map(
-      (c) =>
-        `<clause id="${c.chunk_id}" document="Dubai Building Code" edition="2021" authority="DM" ref="${c.clause_ref}" page="${c.page_start}">\n${c.content}\n</clause>`,
-    )
+    .map((c) => {
+      const d = docOf(docs, c.document_id);
+      return `<clause id="${c.chunk_id}" document="${attr(d.title)}" edition="${attr(d.edition)}" authority="${d.authority}" ref="${attr(c.clause_ref)}" page="${c.page_start}">\n${c.content}\n</clause>`;
+    })
     .join("\n\n");
 }
 
@@ -63,9 +66,10 @@ function normalize(raw: Record<string, unknown>): Record<string, unknown> {
 export async function generate(
   question: string,
   chunks: SearchResult[],
+  docs: Map<string, DocInfo>,
   feedback?: string,
 ): Promise<GenerationResult> {
-  const context = formatChunks(chunks);
+  const context = formatChunks(chunks, docs);
 
   let userMessage = `${question}\n\n${context}`;
   if (feedback) {
