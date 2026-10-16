@@ -10,6 +10,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { createClient } from "@supabase/supabase-js";
 import { hybridSearch, type SearchResult } from "../lib/pipeline/search";
+import { runPipeline } from "../lib/pipeline/pipeline";
 
 interface GoldenQuestion {
   id: string;
@@ -72,6 +73,14 @@ interface QuestionResult {
   best_similarity: number;
   would_abstain: boolean;
   latency_ms: number;
+  full?: {
+    abstained: boolean;
+    abstain_reason: string | null;
+    answer_md: string;
+    n_citations: number;
+    must_include_hit: number | null;
+    latency_ms: number;
+  };
 }
 
 async function evalQuestion(
@@ -151,7 +160,7 @@ async function evalQuestion(
 }
 
 async function main() {
-  const { tag, onlyType } = parseArgs();
+  const { tag, onlyType, retrievalOnly } = parseArgs();
   const goldenPath = path.resolve("evals/golden.jsonl");
   let questions = parseGolden(goldenPath);
 
@@ -168,6 +177,27 @@ async function main() {
   for (const q of questions) {
     process.stdout.write(`  ${q.id} ${q.question.slice(0, 60)}...`);
     const r = await evalQuestion(q, k, gate);
+    if (!retrievalOnly) {
+      const t0 = Date.now();
+      try {
+        const p = await runPipeline(q.question, undefined, "eval");
+        const hits = q.must_include.filter((m) =>
+          p.answer_md.toLowerCase().replace(/,/g, "").includes(m.toLowerCase().replace(/,/g, "")),
+        ).length;
+        r.full = {
+          abstained: p.abstained,
+          abstain_reason: p.abstain_reason,
+          answer_md: p.answer_md,
+          n_citations: p.citations.length,
+          must_include_hit: q.must_include.length ? hits / q.must_include.length : null,
+          latency_ms: Date.now() - t0,
+        };
+      } catch (e) {
+        r.full = { abstained: true, abstain_reason: `error: ${e}`, answer_md: "", n_citations: 0, must_include_hit: null, latency_ms: Date.now() - t0 };
+      }
+      r.would_abstain = r.full.abstained;
+      await new Promise((res) => setTimeout(res, 4000));
+    }
     const status = q.should_abstain
       ? r.would_abstain
         ? "✓ abstain"
@@ -209,6 +239,19 @@ async function main() {
   const avgLatency =
     results.reduce((s, r) => s + r.latency_ms, 0) / results.length;
 
+  const fullRows = results.filter((r) => r.full);
+  const answeredRows = answerable.filter((r) => r.full && !r.full.abstained);
+  const withMust = answeredRows.filter((r) => r.full!.must_include_hit !== null);
+  const answerAccuracy =
+    answerable.length > 0 && fullRows.length
+      ? answerable.filter((r) => r.full && r.full.must_include_hit === 1).length / answerable.length
+      : null;
+  const lat = fullRows.map((r) => r.full!.latency_ms).sort((a, b) => a - b);
+  const p95 = lat.length ? lat[Math.min(lat.length - 1, Math.floor(lat.length * 0.95))] : null;
+  const verifyAbstains = fullRows.filter((r) => r.full!.abstain_reason === "verify").length;
+  const genErrors = fullRows.filter((r) => (r.full!.abstain_reason ?? "").startsWith("generation_error") || (r.full!.abstain_reason ?? "").startsWith("error")).length;
+  void withMust;
+
   // Get git SHA
   let gitSha = "unknown";
   try {
@@ -223,6 +266,9 @@ async function main() {
     abstain_precision: abstainPrecision,
     over_refusal: overRefusal,
     avg_latency_ms: avgLatency,
+    ...(fullRows.length
+      ? { answer_accuracy: answerAccuracy, p95_latency_ms: p95, verify_abstains: verifyAbstains, generation_errors: genErrors }
+      : {}),
   };
 
   console.log("\n=== Metrics ===");
@@ -232,6 +278,11 @@ async function main() {
   console.log(`  Abstain precision: ${(abstainPrecision * 100).toFixed(1)}%  (target ≥90%)`);
   console.log(`  Over-refusal:      ${(overRefusal * 100).toFixed(1)}%  (target ≤10%)`);
   console.log(`  Avg latency:       ${avgLatency.toFixed(0)}ms`);
+  if (fullRows.length) {
+    console.log(`  Answer accuracy:   ${((answerAccuracy ?? 0) * 100).toFixed(1)}%  (target ≥85%)`);
+    console.log(`  p95 latency:       ${p95}ms  (target <8000ms)`);
+    console.log(`  Verify abstains:   ${verifyAbstains}   Generation errors: ${genErrors}`);
+  }
 
   // Write report
   const now = new Date();
@@ -244,7 +295,7 @@ async function main() {
   report += `- **Date:** ${now.toISOString()}\n`;
   report += `- **Git SHA:** ${gitSha}\n`;
   report += `- **Questions:** ${questions.length} (${answerable.length} answerable, ${abstainable.length} should-abstain)\n`;
-  report += `- **Config:** K=${k}, gate=${gate}, retrieval-only\n\n`;
+  report += `- **Config:** K=${k}, gate=${gate}, ${retrievalOnly ? "retrieval-only" : "full pipeline"}\n\n`;
 
   report += `## Metrics\n\n`;
   report += `| Metric | Value | Target |\n`;
@@ -254,7 +305,23 @@ async function main() {
   report += `| MRR | ${avgMRR.toFixed(3)} | Track |\n`;
   report += `| Abstain precision | ${(abstainPrecision * 100).toFixed(1)}% | ≥90% |\n`;
   report += `| Over-refusal | ${(overRefusal * 100).toFixed(1)}% | ≤10% |\n`;
-  report += `| Avg latency | ${avgLatency.toFixed(0)}ms | — |\n\n`;
+  report += `| Avg latency | ${avgLatency.toFixed(0)}ms | — |\n`;
+  if (fullRows.length) {
+    report += `| Answer accuracy (must_include) | ${((answerAccuracy ?? 0) * 100).toFixed(1)}% | ≥85% |\n`;
+    report += `| p95 pipeline latency | ${p95}ms | <8000ms |\n`;
+    report += `| Verify abstains / generation errors | ${verifyAbstains} / ${genErrors} | — |\n`;
+  }
+  report += `\n`;
+  if (fullRows.length) {
+    const bad = answerable.filter((r) => r.full && (r.full.abstained || r.full.must_include_hit !== 1));
+    report += `## Answer failures\n\n`;
+    if (!bad.length) report += `None.\n\n`;
+    else {
+      report += `| ID | Abstained | Reason | must_include hit | Answer |\n| --- | --- | --- | --- | --- |\n`;
+      for (const r of bad) report += `| ${r.id} | ${r.full!.abstained} | ${r.full!.abstain_reason ?? ""} | ${r.full!.must_include_hit ?? "n/a"} | ${r.full!.answer_md.replace(/\|/g, "/").replace(/\n/g, " ").slice(0, 160)} |\n`;
+      report += `\n`;
+    }
+  }
 
   report += `## Failures\n\n`;
   const failures = answerable.filter((r) => r.recall_at_5 === 0);
@@ -293,7 +360,7 @@ async function main() {
       .insert({
         git_sha: gitSha,
         tag,
-        config: { k, gate, mode: "retrieval-only" },
+        config: { k, gate, mode: retrievalOnly ? "retrieval-only" : "full" },
         metrics,
       })
       .select("id")
@@ -310,7 +377,7 @@ async function main() {
           top5: r.retrieved_top5_refs,
           best_sim: r.best_similarity,
         },
-        answer: null,
+        answer: r.full ? { abstained: r.full.abstained, reason: r.full.abstain_reason, answer_md: r.full.answer_md } : null,
         scores: {
           recall_at_5: r.recall_at_5,
           recall_at_k: r.recall_at_k,

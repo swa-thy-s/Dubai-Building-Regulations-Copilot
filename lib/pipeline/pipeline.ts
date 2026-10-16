@@ -96,6 +96,8 @@ export async function runPipeline(
   } catch (e) {
     const errMsg = e instanceof Error ? e.message : String(e);
     console.error("[pipeline] generation failed:", errMsg);
+    const status = (e as { status?: number }).status;
+    const capacity = status === 429 || status === 503 || /\b(429|503)\b/.test(errMsg);
     const traceId = await logQuery({
       question,
       rewrittenQuery: searchQuery,
@@ -111,7 +113,7 @@ export async function runPipeline(
     return {
       trace_id: traceId,
       abstained: true,
-      abstain_reason: "generation_error",
+      abstain_reason: capacity ? "capacity" : "generation_error",
       answer_md: "",
       conditions: [],
       citations: [],

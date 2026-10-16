@@ -33,7 +33,7 @@ const EXAMPLES = [
 ];
 
 const DISCLAIMER =
-  "This tool provides reference information only. It does not constitute legal or professional advice. Always verify requirements with the relevant authority and consult a qualified professional.";
+  "Reference tool, not an official ruling. Confirm with the relevant authority. English text is a translation; the Arabic version prevails legally.";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
@@ -335,7 +335,23 @@ export default function Home() {
       {result && !loading && (
         <div ref={answerRef} className="mt-6 space-y-4" aria-live="polite">
           {result.abstained ? (
-            <AbstainCard reason={result.abstain_reason} />
+            result.abstain_reason === "capacity" || result.abstain_reason === "generation_error" ? (
+              <div className="rounded-lg border border-[var(--error)] bg-[var(--error)]/10 p-4">
+                <p className="text-sm text-[var(--error)]">
+                  {result.abstain_reason === "capacity"
+                    ? "The tool is at capacity. Try again later."
+                    : "Something went wrong generating the answer. Please try again."}
+                </p>
+                <button
+                  onClick={() => submit(lastQuestionRef.current)}
+                  className="mt-2 text-sm font-medium text-[var(--accent)] hover:underline"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              <AbstainCard reason={result.abstain_reason} />
+            )
           ) : (
             <>
               {/* Answer text */}
