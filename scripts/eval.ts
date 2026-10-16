@@ -91,7 +91,9 @@ async function evalQuestion(
   const start = Date.now();
   let results: SearchResult[];
   try {
-    results = await hybridSearch(q.question);
+    results = await hybridSearch(q.question, {
+      authorities: q.authority === "Trakhees" ? ["Trakhees"] : undefined,
+    });
   } catch (e) {
     console.error(`  ✗ ${q.id}: search failed: ${e}`);
     return {
@@ -180,7 +182,7 @@ async function main() {
     if (!retrievalOnly) {
       const t0 = Date.now();
       try {
-        const p = await runPipeline(q.question, undefined, "eval");
+        const p = await runPipeline(q.question, q.authority === "Trakhees" ? ["Trakhees"] : undefined, "eval");
         const hits = q.must_include.filter((m) =>
           p.answer_md.toLowerCase().replace(/,/g, "").includes(m.toLowerCase().replace(/,/g, "")),
         ).length;

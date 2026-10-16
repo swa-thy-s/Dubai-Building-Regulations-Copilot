@@ -26,3 +26,11 @@
 - **Known leaks:** Trakhees-warehouse probe (0.708) and two FTS-rescued probes ("Is my design compliant?", "minimum ceiling height") still pass the gate. Left to the model abstain and verify layers; a Trakhees-aware check (no Trakhees docs indexed) is a candidate follow-up.
 - **Caveat:** only 18 answerable questions, so the margin is thin. Re-check when the golden set grows to 60 and more documents are ingested.
 - **Report:** `evals/reports/2026-10-16-e375e1f-gate-0.68.md`
+
+## 5. Golden set v1: 60 questions, retrieval-only (2026-10-16)
+
+- **Config:** gate=0.68, K=6, hybrid, no rerank. Golden grown from 20 to 60 (20 lookup, 10 numeric, 10 multi-clause, 10 trap, 10 abstain). The 40 new questions were drafted from indexed clause text and are NOT yet architect-verified. Trakhees questions run with the authority filter.
+- **Results:** Recall@5 98.9%, MRR 0.972, abstain precision 92.9% (13/14), over-refusal 0%.
+- **Leak:** g-048 ("2013 edition" corridor width) passes the similarity gate. A similarity gate cannot see edition mismatch; it relies on the model abstaining. Check in the first full run.
+- **Not run:** full-pipeline run blocked by the Gemini free-tier daily quota (20 requests/day/model for gemini-3-flash). Generation metrics (answer accuracy, citation validity, p95, judge) are pending.
+- **Report:** `evals/reports/2026-10-16-a34db2c-golden60-retrieval.md`

@@ -1,0 +1,86 @@
+# Eval report: golden60-retrieval
+
+- **Date:** 2026-10-16T15:20:48.947Z
+- **Git SHA:** a34db2c
+- **Questions:** 60 (46 answerable, 14 should-abstain)
+- **Config:** K=6, gate=0.68, retrieval-only
+
+## Metrics
+
+| Metric | Value | Target |
+| --- | --- | --- |
+| Recall@5 | 98.9% | ≥85% |
+| Recall@K(6) | 98.9% | — |
+| MRR | 0.972 | Track |
+| Abstain precision | 92.9% | ≥90% |
+| Over-refusal | 0.0% | ≤10% |
+| Avg latency | 737ms | — |
+
+## Failures
+
+None — all answerable questions had at least one gold chunk in top 5.
+
+## All results
+
+| ID | Type | R@5 | MRR | Sim | Abstain? | Gold | Top 5 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| g-001 | lookup | 1.00 | 1.00 | 0.760 | no | dbc-2021#Table B.5 | Table B.5, B.6.2.1, Table B.7, Definition: Clear width, Definition: Corridor |
+| g-002 | numeric | 1.00 | 1.00 | 0.738 | no | dbc-2021#Table B.3 | Table B.3, Table B.8, B.5.2, Definition: Habitable space, Table B.31 |
+| g-003 | numeric | 1.00 | 1.00 | 0.729 | no | dbc-2021#B.6.4.1.4 | B.6.4.1.4, Table B.6, B.6.4.1.13, Table B.17, Definition: Riser |
+| g-004 | lookup | 1.00 | 0.20 | 0.654 | no | dbc-2021#B.6.4.1.4 | B.6.4.1.12, B.6.4.1.7, B.6.4.1.5, Table B.6, B.6.4.1.4 |
+| g-005 | numeric | 1.00 | 1.00 | 0.728 | no | dbc-2021#Table B.7 | Table B.7, B.6.5.1, B.9.4.4, Definition: Clear width, Table B.5 |
+| g-006 | lookup | 1.00 | 1.00 | 0.737 | no | dbc-2021#B.6.4.1.5 | B.6.4.1.5, Table B.6, B.6.4.1.4, Definition: Landing, B.6.4.1.16 |
+| g-007 | lookup | 1.00 | 1.00 | 0.769 | no | dbc-2021#B.6.5.1 | B.6.5.1, Table B.7, B.8.1.5, B.6.4.1.5, Table B.5 |
+| g-008 | numeric | 1.00 | 1.00 | 0.772 | no | dbc-2021#Table B.9 | Table B.9, Table B.10, B.7.2.2, Definition: Ramp, B.7.3.2 |
+| g-009 | numeric | 1.00 | 1.00 | 0.785 | no | dbc-2021#B.4.2.1 | B.4.2.1, Definition: Gate level, B.7.2.1, B.7.3.1.2, Table B.15 |
+| g-010 | numeric | 1.00 | 1.00 | 0.757 | no | dbc-2021#Table B.21 | Table B.21, B.8.1.4.1, Table B.7, Table B.22, B.8.1.5 |
+| g-011 | lookup | 1.00 | 1.00 | 0.754 | no | dbc-2021#Table B.4 | Table B.4, Table B.4, B.6.4.1.12, B.5.3, B.8.5.2.3 (2/2) |
+| g-012 | lookup | 1.00 | 1.00 | 0.728 | no | dbc-2021#B.6.4.1.12 | B.6.4.1.12, B.6.4.1.16, B.6.4.1.1, B.6.4.1.11, Definition: Means of egress |
+| g-013 | numeric | 1.00 | 1.00 | 0.706 | no | dbc-2021#B.6.4.1.12 | B.6.4.1.12, B.6.4.1.3, Table B.6, B.6.4.1.16, B.6.4.1 |
+| g-014 | numeric | 1.00 | 1.00 | 0.778 | no | dbc-2021#B.9.7.2.2 | B.9.7.2.2, Table B.31, B.9.7.2.3, Definition: Labour accommodation, B.9.7.2.1 |
+| g-015 | numeric | 1.00 | 1.00 | 0.756 | no | dbc-2021#Table B.32 | Table B.32, B.9.7.4, Table B.31, Table B.3, B.5.2 |
+| g-016 | lookup | 1.00 | 1.00 | 0.758 | no | dbc-2021#Table B.5 | Table B.5, B.6.2.1, B.6.2.3, Table B.4, Table B.2 |
+| g-017 | lookup | 1.00 | 1.00 | 0.721 | no | dbc-2021#B.5.3 | B.5.3, B.8.1.5, B.9.5.1.3, Table B.5, B.7.3.1.4 |
+| g-018 | numeric | 1.00 | 1.00 | 0.691 | no | dbc-2021#Table B.3 | Table B.3, Table B.2, B.9.4.8, B.5.3, B.9.5.1.3 |
+| g-019 | abstain | 0.00 | 0.00 | 0.560 | yes |  | Table B.13, Definition: Development control regulations (DCR), Table B.2, B.9.4.8, Definition: Planning regulations |
+| g-020 | abstain | 0.00 | 0.00 | 0.667 | yes |  | B.6.2.2, B.6.6.4, B.9.2, B.6.6.2, B.6.4.1.2 |
+| g-021 | lookup | 1.00 | 1.00 | 0.736 | no | dbc-2021#B.6.4.1.3 | B.6.4.1.3, B.6.4.1.12, B.6.4.1.7, B.7.3.3, B.6.4.1.5 |
+| g-022 | lookup | 1.00 | 1.00 | 0.746 | no | dbc-2021#B.6.4.1.15 | B.6.4.1.15, Table B.4, B.6.4.1.12, B.6.4.1.5, B.6.4.1.3 |
+| g-023 | lookup | 1.00 | 1.00 | 0.766 | no | dbc-2021#B.6.4.1.10 | B.6.4.1.10, Table B.6, B.6.4.1.8, B.6.4.1.16, Definition: Exterior stairway |
+| g-024 | lookup | 1.00 | 1.00 | 0.728 | no | dbc-2021#B.4.2.5.2 | B.4.2.5.2, Definition: Guardrail, B.6.4.1.8, B.6.1, B.6.4.1.13 |
+| g-025 | lookup | 1.00 | 1.00 | 0.808 | no | dbc-2021#B.8.1.6 | B.8.1.6, Definition: Housekeeper’s room, Table B.3, B.8.5.2.3 (1/2), Table B.29 |
+| g-026 | lookup | 1.00 | 1.00 | 0.747 | no | dbc-2021#B.8.2.2 | B.8.2.2, Definition: Feeding room or lactation room, B.8.2.3, Table B.24, B.9.7.2.3 |
+| g-027 | lookup | 1.00 | 1.00 | 0.735 | no | dbc-2021#B.8.3.2.4 | B.8.3.2.4, B.8.3.2.5, B.8.3.2.1, B.8.3.2.3, B.8.3.2.2 |
+| g-028 | lookup | 1.00 | 1.00 | 0.791 | no | dbc-2021#B.8.3.2.5 | B.8.3.2.5, Table B.6, B.6.4.1.6, B.6.4.1.4, B.6.4.1.16 |
+| g-029 | lookup | 1.00 | 1.00 | 0.721 | no | dbc-2021#B.7.2.3.3 | B.7.2.3.3, B.7.2.2, Table B.11, B.7.2.4, Definition: Vehicle barrier |
+| g-030 | lookup | 1.00 | 1.00 | 0.790 | no | dbc-2021#B.6.6.3 | B.6.6.3, Definition: Courtyard, B.6.5.2.2, B.6.5.2.1, Table B.4 |
+| g-031 | lookup | 1.00 | 1.00 | 0.689 | no | dbc-2021#B.8.1.1 | B.8.1.1, B.8.1.4.2, B.8.3.3, B.9.4.9, B.8.1.4.1 |
+| g-032 | lookup | 1.00 | 1.00 | 0.744 | no | dbc-2021#B.8.1.4.1 | B.8.1.4.1, B.6.2.1, Table B.5, Table B.21, Table B.7 |
+| g-033 | multi_clause | 1.00 | 1.00 | 0.721 | no | dbc-2021#B.6.4.1.7, dbc-2021#B.6.4.1.8 | B.6.4.1.8, B.6.4.1.7, B.6.4.1.3, B.4.2.5.2, B.6.4.1.5 |
+| g-034 | multi_clause | 1.00 | 1.00 | 0.751 | no | dbc-2021#Table B.6, dbc-2021#B.6.4.1.3 | Table B.6, B.6.4.1.4, B.6.4.1.6, B.6.4.1.13, B.6.4.1.3 |
+| g-035 | multi_clause | 1.00 | 1.00 | 0.765 | no | dbc-2021#B.7.2.6.2, dbc-2021#B.7.2.6.3 | B.7.2.6.3, B.7.2.6.2, Table B.13, Table B.13, Table B.16 |
+| g-036 | multi_clause | 1.00 | 1.00 | 0.786 | no | dbc-2021#Table B.16, dbc-2021#Table B.15 | Table B.16, Table B.15, B.7.3.1.4, B.7.3.1.3, B.7.3.1.2 |
+| g-037 | multi_clause | 0.50 | 1.00 | 0.769 | no | dbc-2021#B.8.1.3.1, dbc-2021#B.5.1 | B.8.1.3.1, Table B.18, Table B.18, Table B.20, Table B.19 |
+| g-038 | multi_clause | 1.00 | 1.00 | 0.740 | no | dbc-2021#Table B.2, dbc-2021#B.5.1 | Table B.2, Table B.2, B.5.1, Table B.18, Definition: Occupant load |
+| g-039 | multi_clause | 1.00 | 1.00 | 0.803 | no | dbc-2021#B.8.3.3, dbc-2021#Table B.26 | Table B.26, B.8.3.3, Table B.19, Definition: Prayer room, B.9.4.6.1 |
+| g-040 | multi_clause | 1.00 | 1.00 | 0.754 | no | dbc-2021#B.8.3.2.6, dbc-2021#Table B.25 | B.8.3.2.6, Table B.25, B.8.3.2.2, B.8.3.2.2 table 1, B.8.3.2.5 |
+| g-041 | multi_clause | 1.00 | 1.00 | 0.757 | no | dbc-2021#B.7.3.2 | B.7.3.2, Table B.9, B.7.2.2, B.6.4.1.13, B.6.4.2 |
+| g-042 | trap | 1.00 | 1.00 | 0.747 | no | dbc-2021#B.6.4.1.1 | B.6.4.1.1, B.6.4.1.16, B.6.4.1.2, B.6.4.1.11, B.6.4.1.3 |
+| g-043 | trap | 1.00 | 1.00 | 0.710 | no | dbc-2021#B.6.4.1.2 | B.6.4.1.2, B.6.2.2, B.6.6.4, B.6.4.1.1, B.6.4.1.10 |
+| g-044 | trap | 0.00 | 0.00 | 0.000 | yes |  |  |
+| g-045 | trap | 0.00 | 0.00 | 0.000 | yes |  |  |
+| g-046 | trap | 0.00 | 0.00 | 0.000 | yes |  |  |
+| g-047 | trap | 1.00 | 1.00 | 0.756 | no | dbc-2021#Table B.5 | Table B.5, B.6.2.1, Definition: Service corridor, Definition: Corridor, Table B.7 |
+| g-048 | trap | 0.00 | 0.00 | 0.696 | no |  | Table B.5, B.6.2.1, Definition: Corridor, Table B.7, Table B.4 |
+| g-049 | trap | 1.00 | 1.00 | 0.730 | no | dbc-2021#B.7.3.4 | B.7.3.4, B.7.3.3, B.4.3.4, B.8.3.2.5, Table B.17 |
+| g-050 | trap | 1.00 | 0.50 | 0.000 | no | dbc-2021#B.8.4 | B.4.2.3 (1/2), B.8.4, B.8.5.2.2 (1/2), B.4.3.2, B.7.3.4 |
+| g-051 | trap | 1.00 | 1.00 | 0.697 | no | dbc-2021#B.4.2.6 | B.4.2.6, Definition: device), Definition: Balcony, B.4.2.5.2, B.8.3.2.3 |
+| g-052 | abstain | 0.00 | 0.00 | 0.660 | yes |  | Definition: Project, Definition: Development, Definition: Authorized use, Definition: Development control regulations (DCR), Definition: Building |
+| g-053 | abstain | 0.00 | 0.00 | 0.602 | yes |  | B.2.2 table 1, Table B.13, B.9.12, Definition: Development, Definition: Project |
+| g-054 | abstain | 0.00 | 0.00 | 0.630 | yes |  | Definition: Wind towers, B.4.2.2, Table B.2, B.3.1 (1/3), Table B.15 |
+| g-055 | abstain | 0.00 | 0.00 | 0.645 | yes |  | B.3.1 (1/3), Table B.2, Table B.16, Definition: Basement floor, B.4.3.2 |
+| g-056 | abstain | 0.00 | 0.00 | 0.648 | yes |  | Table B.1, B.10.7, Definition: Low-depth underground building, Definition: Mid-rise building, B.10.6.2 |
+| g-057 | abstain | 0.00 | 0.00 | 0.604 | yes |  | B.9.7.1, B.6.6.1, B.4.2.3 (1/2), B.4.3.1, B.9.6.4 |
+| g-058 | abstain | 0.00 | 0.00 | 0.634 | yes |  | B.4.3.4, Definition: Solar reflectance index (SRI), B.10.5.3, Definition: Roof, Table B.33 |
+| g-059 | abstain | 0.00 | 0.00 | 0.671 | yes |  | B.6.4.1.16, B.4.3.2, Table B.3, Table B.8, B.4.3.1 |
+| g-060 | multi_clause | 1.00 | 1.00 | 0.688 | no | dbc-2021#B.6.4.1.8, dbc-2021#B.4.3.4, dbc-2021#B.4.2.5.2 | B.6.4.1.8, B.4.2.5.2, B.7.3.4, B.4.3.4, Definition: Guardrail |
