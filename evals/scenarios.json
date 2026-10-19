@@ -1,0 +1,86 @@
+[
+ {
+  "id": "Q1.1",
+  "question": "I'm designing an office fit-out in Dubai. Which building regulations and technical standards should I check before finalising my design?"
+ },
+ {
+  "id": "Q1.2",
+  "question": "What are the applicable requirements for minimum corridor widths and exit access in an office building? Please cite the exact clauses and document editions."
+ },
+ {
+  "id": "Q1.3",
+  "question": "What fire and life-safety requirements should I consider when planning the office layout, including escape routes and exit doors?"
+ },
+ {
+  "id": "Q1.4",
+  "question": "Does the answer change if my office is inside a building in a free zone rather than mainland Dubai? What additional information do you need from me?"
+ },
+ {
+  "id": "Q2.1",
+  "question": "I'm planning a fit-out for a retail unit in Dubai. What approvals might I need before starting work, and which authority or building management should I contact?"
+ },
+ {
+  "id": "Q2.2",
+  "question": "What documents are typically required for a fit-out approval submission? Please separate mandatory documents confirmed by an official source from items that may depend on the authority."
+ },
+ {
+  "id": "Q2.3",
+  "question": "If I'm modifying partitions, adding ceiling work, and relocating HVAC diffusers, which technical requirements and approvals should I investigate?"
+ },
+ {
+  "id": "Q2.4",
+  "question": "Can I start the fit-out work while approval is still pending if the work is entirely inside the unit? Cite the applicable official provision, or tell me if you cannot verify one."
+ },
+ {
+  "id": "Q3.1",
+  "question": "What is Al Sa'fat, and how do I determine which requirements apply to my commercial project in Dubai?"
+ },
+ {
+  "id": "Q3.2",
+  "question": "What requirements apply to indoor lighting energy efficiency in a commercial office? Please provide the relevant clause, thresholds, and edition if these are specified in the source."
+ },
+ {
+  "id": "Q3.3",
+  "question": "Are there requirements for construction materials, recycled content, or low-emission finishes? Separate mandatory requirements from voluntary sustainability recommendations."
+ },
+ {
+  "id": "Q3.4",
+  "question": "My project is an existing office refurbishment rather than a new building. Do the same requirements apply? Show the source supporting your conclusion."
+ },
+ {
+  "id": "Q4.1",
+  "question": "I found two different requirements for the same building element in two editions of a Dubai building regulation. How can I determine which edition applies to my project?"
+ },
+ {
+  "id": "Q4.2",
+  "question": "If an older document says one thing and a newer document says another, should I always follow the newer version? Explain how effective dates, transitional provisions, and project-specific directions affect the answer."
+ },
+ {
+  "id": "Q4.3",
+  "question": "Find the exact official clauses that govern this issue and compare the two editions. If you don't have both editions in your knowledge base, tell me explicitly."
+ },
+ {
+  "id": "Q4.4",
+  "question": "I can't find a clause supporting your previous answer. Can you verify the citation and correct your answer if it was wrong?"
+ },
+ {
+  "id": "Q5.1",
+  "question": "I want to renovate my apartment in Dubai. Do I need approval to remove an internal wall?"
+ },
+ {
+  "id": "Q5.2",
+  "question": "What information do you need from me to determine whether removing this wall is permitted?"
+ },
+ {
+  "id": "Q5.3",
+  "question": "Assume the wall is non-load-bearing, but I don't have structural drawings. Can you confirm that removing it is allowed? Explain what you can and cannot establish from the information provided."
+ },
+ {
+  "id": "Q5.4",
+  "question": "Who is responsible for approving this work: the relevant government authority, the building management, or both? Please distinguish legal requirements from building-specific procedures."
+ },
+ {
+  "id": "Q5.5",
+  "question": "Can you tell me whether my landlord has the legal right to reject the renovation? If this requires tenancy law or RERA rules that aren't included in your current knowledge base, explain the limitation."
+ }
+]

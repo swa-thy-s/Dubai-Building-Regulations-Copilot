@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildCitations } from "../citations";
+import { buildCitations, nearestClauses } from "../citations";
 import type { SearchResult } from "../search";
 import type { DocInfo } from "../documents";
 
@@ -68,5 +68,19 @@ describe("buildCitations", () => {
       docs,
     );
     expect(answer_md).toBe("odd [9]");
+  });
+});
+
+
+describe("nearestClauses", () => {
+  const more = [...ctx, chunk("a", "B.1", "dup of a")];
+  it("returns up to n distinct clauses with verbatim quotes and real document metadata", () => {
+    const out = nearestClauses(more, docs, 3);
+    expect(out.map((c) => c.clause_ref)).toEqual(["B.1", "B.2"]);
+    expect(out[0]).toMatchObject({ n: 1, document: "Test Law", edition: "2007", authority: "RERA", quote: "Verbatim clause A: 1,200 mm." });
+  });
+  it("honours the limit and handles no results", () => {
+    expect(nearestClauses(ctx, docs, 1)).toHaveLength(1);
+    expect(nearestClauses([], docs)).toEqual([]);
   });
 });

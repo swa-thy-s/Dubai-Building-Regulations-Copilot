@@ -1,12 +1,13 @@
 "use client";
 
-import { Suspense, useState, useRef, useCallback, useEffect } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import AckModal from "@/components/AckModal";
 import AnswerNotice from "@/components/AnswerNotice";
 import StaleBanner from "@/components/StaleBanner";
 import { useLegalAck } from "@/components/useLegalAck";
+import { useCorpus } from "@/components/useCorpus";
 import { INPUT_HINT, STRINGS } from "@/lib/legal";
 
 interface Citation {
@@ -27,18 +28,42 @@ interface PipelineResult {
   answer_md: string;
   conditions: string[];
   citations: Citation[];
+  nearest?: Citation[];
   notice?: string;
 }
 
 type Authority = "All" | "DM" | "Trakhees" | "RERA";
 
-const EXAMPLES = [
-  "What is the minimum corridor width for an office building?",
-  "What are the ventilation requirements for basement car parks?",
-  "Maximum building height allowed without a fire lift?",
-  "What is the minimum door width for an accessible toilet?",
-  "Staircase handrail height requirements?",
-];
+const EXAMPLES: Record<string, string[]> = {
+  DM: [
+    "What is the minimum clear width of a stairway?",
+    "What are the handrail and guardrail height requirements for stairs?",
+    "What is the minimum corridor width in a retail building?",
+    "What is the minimum area for a residential living space such as a bedroom?",
+    "What does the Building Code count as a renovation of an existing building?",
+  ],
+  RERA: [
+    "Is a non-load-bearing wall inside an apartment part of the unit or of the common areas?",
+    "Can a tenant sub-let without the landlord's consent?",
+    "What is the maximum rent increase when the rent is 11% to 20% below the average for similar units?",
+    "What fee applies to registering a mortgage contract?",
+    "What fee applies to registering a real property sale contract?",
+  ],
+};
+
+const CHIP_ORDER: Authority[] = ["DM", "Trakhees", "RERA"];
+const CHIP_LABEL: Record<Authority, string> = {
+  All: "All documents",
+  DM: "Dubai Municipality",
+  Trakhees: "Trakhees",
+  RERA: "Real estate laws",
+};
+
+function examplesFor(authority: Authority, available: Authority[]): string[] {
+  if (authority !== "All") return EXAMPLES[authority] ?? [];
+  const dm = EXAMPLES.DM.slice(0, 3);
+  return available.includes("RERA") ? [...dm, ...EXAMPLES.RERA.slice(0, 2)] : EXAMPLES.DM;
+}
 
 export default function AskPage() {
   return (
@@ -51,6 +76,8 @@ export default function AskPage() {
 function Ask() {
   const params = useSearchParams();
   const ack = useLegalAck();
+  const corpusState = useCorpus();
+  const available = CHIP_ORDER.filter((a) => corpusState.documents.some((d) => d.authority === a));
   const [question, setQuestion] = useState(() => (params.get("q") ?? "").slice(0, 500));
   const [authority, setAuthority] = useState<Authority>("All");
   const [loading, setLoading] = useState(false);
@@ -61,6 +88,7 @@ function Ask() {
   const [feedbackText, setFeedbackText] = useState("");
   const [showFeedbackBox, setShowFeedbackBox] = useState(false);
   const [showCorpus, setShowCorpus] = useState(false);
+  const [reported, setReported] = useState(false);
   const [corpus, setCorpus] = useState<
     { title: string; authority: string; edition: string; status: string; ingested_at: string }[]
   >([]);
@@ -71,8 +99,7 @@ function Ask() {
   const charCount = question.length;
   const canSubmit = ack.status === "ok" && question.trim().length > 0 && charCount <= 500 && !loading;
 
-  const submit = useCallback(
-    async (q?: string) => {
+  const submit = async (q?: string) => {
       const text = q ?? question;
       if (!text.trim() || loading || ack.status !== "ok") return;
       lastQuestionRef.current = text;
@@ -82,6 +109,7 @@ function Ask() {
       setError(null);
       setFeedbackSent(null);
       setShowFeedbackBox(false);
+      setReported(false);
 
       const authorities = authority === "All" ? undefined : [authority];
 
@@ -167,9 +195,7 @@ function Ask() {
         setLoading(false);
         setStage("");
       }
-    },
-    [question, authority, loading, ack.status],
-  );
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -193,6 +219,19 @@ function Ask() {
       });
     } catch {
       // silently fail
+    }
+  };
+
+  const reportMissingTopic = async () => {
+    setReported(true);
+    try {
+      await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind: "missing_topic", query_log_id: result?.trace_id, question: lastQuestionRef.current.slice(0, 500) }),
+      });
+    } catch {
+      // the thank-you still shows; a lost report is not worth blocking the user
     }
   };
 
@@ -260,24 +299,33 @@ function Ask() {
 
       <StaleBanner />
 
-      {/* Authority filter */}
-      <div className="mb-4 flex gap-2" role="radiogroup" aria-label="Authority filter">
-        {(["All", "DM", "Trakhees", "RERA"] as Authority[]).map((a) => (
-          <button
-            key={a}
-            role="radio"
-            aria-checked={authority === a}
-            onClick={() => setAuthority(a)}
-            className={`rounded-full border px-3 py-1 text-sm font-medium transition-colors ${
-              authority === a
-                ? "border-[var(--accent)] bg-[var(--accent-light)] text-[var(--foreground)]"
-                : "border-[var(--border)] text-[var(--muted)] hover:border-[var(--accent)]"
-            }`}
-          >
-            {a === "DM" ? "Municipality" : a === "Trakhees" ? "Trakhees" : a === "RERA" ? "Real estate (RERA)" : "All"}
-          </button>
-        ))}
-      </div>
+      {/* Publisher filter: only publishers that have indexed documents get a button */}
+      {available.length > 0 && (
+        <div className="mb-4">
+          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Filter by publisher">
+            {(["All", ...available] as Authority[]).map((a) => (
+              <button
+                key={a}
+                role="radio"
+                aria-checked={authority === a}
+                onClick={() => setAuthority(a)}
+                className={`rounded-full border px-3 py-1 text-sm font-medium transition-colors ${
+                  authority === a
+                    ? "border-[var(--accent)] bg-[var(--accent-light)] text-[var(--foreground)]"
+                    : "border-[var(--border)] text-[var(--muted)] hover:border-[var(--accent)]"
+                }`}
+              >
+                {CHIP_LABEL[a]}
+              </button>
+            ))}
+          </div>
+          {available.length > 1 && (
+            <p className="mt-1 text-xs text-[var(--muted)]">
+              Filter by who published the document. &ldquo;All documents&rdquo; searches everything.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Question input */}
       <div className="relative">
@@ -311,6 +359,9 @@ function Ask() {
           </button>
         </div>
         <p className="mt-2 text-xs text-[var(--muted)]">{INPUT_HINT}</p>
+        <p className="mt-1 text-xs text-[var(--muted)]">
+          Each question is answered on its own. The tool does not remember your earlier questions.
+        </p>
       </div>
 
       {/* Example questions */}
@@ -320,7 +371,7 @@ function Ask() {
             Example questions
           </p>
           <div className="flex flex-col gap-2">
-            {EXAMPLES.map((ex) => (
+            {examplesFor(authority, available).map((ex) => (
               <button
                 key={ex}
                 onClick={() => {
@@ -376,7 +427,13 @@ function Ask() {
                 </button>
               </div>
             ) : (
-              <AbstainCard reason={result.abstain_reason} />
+              <AbstainCard
+                reason={result.abstain_reason}
+                nearest={result.nearest ?? []}
+                reported={reported}
+                onReport={reportMissingTopic}
+                onShowCorpus={loadCorpus}
+              />
             )
           ) : (
             <>
@@ -454,28 +511,66 @@ function Ask() {
   );
 }
 
-function AbstainCard({ reason }: { reason: string | null }) {
+function AbstainCard({
+  reason,
+  nearest,
+  reported,
+  onReport,
+  onShowCorpus,
+}: {
+  reason: string | null;
+  nearest: Citation[];
+  reported: boolean;
+  onReport: () => void;
+  onShowCorpus: () => void;
+}) {
   const isOutOfScope = reason === "out_of_scope";
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
-      <p className="text-sm font-medium">{isOutOfScope ? STRINGS.outofscope : STRINGS["abstain.title"]}</p>
-      {!isOutOfScope && <p className="mt-2 text-xs text-[var(--muted)]">{STRINGS["abstain.body"]}</p>}
+    <div className="space-y-3">
+      <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
+        <p className="text-sm font-medium">{isOutOfScope ? STRINGS.outofscope : STRINGS["abstain.title"]}</p>
+        {!isOutOfScope && <p className="mt-2 text-xs text-[var(--muted)]">{STRINGS["abstain.body"]}</p>}
+        {!isOutOfScope && (
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+            <button onClick={onShowCorpus} className="text-[var(--accent)] underline-offset-2 hover:underline">
+              What&rsquo;s indexed
+            </button>
+            {reported ? (
+              <span className="text-[var(--success)]">Thanks, we have noted this topic.</span>
+            ) : (
+              <button onClick={onReport} className="text-[var(--accent)] underline-offset-2 hover:underline">
+                Report a missing topic
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+      {!isOutOfScope && nearest.length > 0 && (
+        <div className="space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
+            Closest clauses found (they may not answer your question)
+          </p>
+          {nearest.map((c) => (
+            <CitationCard key={c.chunk_id} citation={c} idPrefix="nearest" showMarker={false} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-function CitationCard({ citation }: { citation: Citation }) {
+function CitationCard({ citation, idPrefix = "citation", showMarker = true }: { citation: Citation; idPrefix?: string; showMarker?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const quote = citation.quote || "";
   const isLong = quote.length > 150;
 
   return (
     <div
-      id={`citation-${citation.n}`}
+      id={`${idPrefix}-${citation.n}`}
       className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition-shadow"
     >
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="font-mono text-xs font-bold text-[var(--accent)]">[{citation.n}]</span>
+        {showMarker && <span className="font-mono text-xs font-bold text-[var(--accent)]">[{citation.n}]</span>}
         <span className="font-mono text-xs font-semibold">{citation.clause_ref}</span>
         <span className="rounded-full bg-[var(--badge-dm)]/15 px-2 py-0.5 text-[10px] font-semibold text-[var(--badge-dm)]">
           {citation.authority}

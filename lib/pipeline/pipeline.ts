@@ -5,7 +5,7 @@ import { checkGate } from "./gate";
 import { generate, type GenerationResult } from "./generate";
 import { verify } from "./verify";
 import { llmModel } from "./llm";
-import { buildCitations, type Citation } from "./citations";
+import { buildCitations, nearestClauses, type Citation } from "./citations";
 import { getDocuments } from "./documents";
 
 export type { Citation };
@@ -26,6 +26,7 @@ export interface PipelineResult {
   answer_md: string;
   conditions: string[];
   citations: Citation[];
+  nearest?: Citation[];
 }
 
 export interface PipelineProgress {
@@ -86,6 +87,8 @@ export async function runPipeline(
     };
   }
 
+  const docs = await getDocuments();
+
   // Gate
   const gateResult = checkGate(results, gate);
   if (!gateResult.passed) {
@@ -108,11 +111,11 @@ export async function runPipeline(
       answer_md: "",
       conditions: [],
       citations: [],
+      nearest: nearestClauses(results, docs),
     };
   }
 
   const context = results.slice(0, k);
-  const docs = await getDocuments();
 
   // Generate
   onProgress?.({ stage: "Generating answer" });
@@ -167,6 +170,7 @@ export async function runPipeline(
       answer_md: "",
       conditions: [],
       citations: [],
+      nearest: nearestClauses(results, docs),
     };
   }
 
@@ -205,6 +209,7 @@ export async function runPipeline(
       answer_md: "",
       conditions: [],
       citations: [],
+      nearest: nearestClauses(results, docs),
     };
   }
 

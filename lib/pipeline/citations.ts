@@ -53,3 +53,27 @@ export function buildCitations(
 
   return { citations, answer_md };
 }
+
+// Closest clauses shown with an abstain (spec F4). They are retrieval results, not claims: the UI labels them as
+// "may not answer your question".
+export function nearestClauses(results: SearchResult[], docs: Map<string, DocInfo>, n = 3): Citation[] {
+  const seen = new Set<string>();
+  const out: Citation[] = [];
+  for (const r of results) {
+    if (seen.has(r.chunk_id)) continue;
+    seen.add(r.chunk_id);
+    const doc = docOf(docs, r.document_id);
+    out.push({
+      n: out.length + 1,
+      chunk_id: r.chunk_id,
+      document: doc.title,
+      edition: doc.edition,
+      authority: doc.authority,
+      clause_ref: r.clause_ref,
+      page: r.page_start,
+      quote: r.content.slice(0, QUOTE_MAX),
+    });
+    if (out.length >= n) break;
+  }
+  return out;
+}
