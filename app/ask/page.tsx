@@ -32,7 +32,7 @@ interface PipelineResult {
   notice?: string;
 }
 
-type Authority = "All" | "DM" | "Trakhees" | "RERA";
+type Authority = "All" | "DM" | "Trakhees" | "RERA" | "Other";
 
 const EXAMPLES: Record<string, string[]> = {
   DM: [
@@ -49,14 +49,21 @@ const EXAMPLES: Record<string, string[]> = {
     "What fee applies to registering a mortgage contract?",
     "What fee applies to registering a real property sale contract?",
   ],
+  Other: [
+    "What documents are required for a fit-out permit request?",
+    "What does the Fire and Life Safety Code say about delayed egress locking systems?",
+    "Where must the main electrical service room be located in a building?",
+    "When is a building substation required?",
+  ],
 };
 
-const CHIP_ORDER: Authority[] = ["DM", "Trakhees", "RERA"];
+const CHIP_ORDER: Authority[] = ["DM", "Trakhees", "RERA", "Other"];
 const CHIP_LABEL: Record<Authority, string> = {
   All: "All documents",
   DM: "Dubai Municipality",
   Trakhees: "Trakhees",
   RERA: "Real estate laws",
+  Other: "Fire, utilities and free zones",
 };
 
 function examplesFor(authority: Authority, available: Authority[]): string[] {

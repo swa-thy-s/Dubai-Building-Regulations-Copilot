@@ -77,7 +77,9 @@ def check_cache(path: Path, pdf_path: str, threshold: float) -> tuple[int, list[
 
 
 if __name__ == "__main__":
-    cfg = yaml.safe_load(Path("ingest/sources.yaml").read_text())["documents"]
+    from ingest.registry import all_sources
+
+    cfg = all_sources()
     threshold = 0.95
     law_pdf = next(s["pdf_path"] for s in cfg if s.get("kind") == "legislation")
     total = flagged = 0

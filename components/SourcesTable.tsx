@@ -7,7 +7,7 @@ const PUBLISHER: Record<string, string> = {
   DM: "Dubai Municipality",
   Trakhees: "Trakhees",
   RERA: "Government of Dubai (real estate legislation)",
-  Other: "Other",
+  Other: "Other publisher (see title)",
 };
 
 export default function SourcesTable({ compact = false }: { compact?: boolean }) {

@@ -10,12 +10,11 @@ import yaml
 
 from dotenv import load_dotenv
 
-from ingest import chunk, embed, flsc, legislation, numbered, parse, qa, rotated, upsert, verify_chunks, webdoc
+from ingest import chunk, embed, flsc, legislation, numbered, ocr, parse, qa, registry, rotated, smalldocs, upsert, verify_chunks, webdoc
 
 
 def load_source(slug: str) -> dict:
-    cfg = yaml.safe_load(Path("ingest/sources.yaml").read_text())
-    for d in cfg["documents"]:
+    for d in registry.all_sources():
         if d["slug"] == slug:
             return d
     raise SystemExit(f"Unknown slug {slug!r}")
@@ -27,6 +26,15 @@ def run_parse(slug: str, part: str | None) -> dict:
         raw = Path(src["html_path"]).read_text(errors="ignore")
         chunks, stats = webdoc.chunk_page(raw, src["web"], src["title"])
         data = dict(slug=slug, part=src["title"], pages=[1, 1], stats=stats, chunks=chunks)
+        path = qa.cache_path(slug, part)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=1))
+        return data
+    if src.get("kind") == "ocr":
+        pages = [ocr.page_text(lines) for lines in ocr.load_pages(src["pdf_path"])]
+        chunks, stats = smalldocs.chunk_pages(pages, src["title"])
+        stats["ocr_lines_dropped"] = ocr.ocr_pdf(src["pdf_path"])["dropped_lines"]
+        data = dict(slug=slug, part=src["title"], pages=[1, len(pages)], stats=stats, chunks=chunks)
         path = qa.cache_path(slug, part)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(data, ensure_ascii=False, indent=1))

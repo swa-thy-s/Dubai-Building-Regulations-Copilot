@@ -61,6 +61,22 @@ def chapter_starts(doc: pymupdf.Document, first: int) -> list[tuple[int, int, st
     return sorted(out)
 
 
+def _key(text: str) -> str:
+    return re.sub(r"[^A-Za-z0-9]", "", text).lower()
+
+
+def outline_headings(doc: pymupdf.Document, first: int) -> dict[int, list[tuple[str, str, str]]]:
+    """page -> [(key, ref, title)] for numbered section headings (outline levels 2 and 3); levels 4+ are table rows and figures."""
+    out: dict[int, list[tuple[str, str, str]]] = {}
+    for lvl, title, page in doc.get_toc():
+        if lvl not in (2, 3) or page < first or re.match(r"^\s*(Table|Figure)", title):
+            continue
+        m = re.match(r"^(\d+(?:\.\d+)*)\.*\s+(\S.*)$", clean(title))
+        if m:
+            out.setdefault(page, []).append((_key(m.group(1) + m.group(2)), m.group(1), clean(m.group(2))))
+    return out
+
+
 def _norm_cap(c: str | None) -> str:
     return re.sub(r"\(?continued\)?|[\s.:]+", "", (c or ""), flags=re.I).lower()
 
@@ -78,7 +94,14 @@ def table_markdown(page: pymupdf.Page, table) -> tuple[str | None, list[list[str
     rows: list[list[str]] = []
     tops: list[float] = []
     for row in table.rows:
-        rows.append([(_cell_text(page, c) if c else "") for c in row.cells])
+        cells, prev = [], None
+        t_area = pymupdf.Rect(table.bbox).get_area()
+        for c in row.cells:
+            # skip the table's outer frame (a "cell" covering most of the table) and read a spanning cell once
+            frame = c is not None and table.row_count > 1 and pymupdf.Rect(c).get_area() > 0.5 * t_area
+            cells.append(_cell_text(page, c) if c and not frame and tuple(c) != prev else "")
+            prev = tuple(c) if c else prev
+        rows.append(cells)
         tops.append(row.bbox[1])
     caption, start = None, 0
     for k in range(min(3, len(rows))):
@@ -95,6 +118,9 @@ def table_markdown(page: pymupdf.Page, table) -> tuple[str | None, list[list[str
 def to_md(rows: list[list[str]]) -> str:
     width = max(len(r) for r in rows)
     pad = [r + [""] * (width - len(r)) for r in rows]
+    keep = [i for i in range(width) if any(r[i] for r in pad)]  # drop columns that are empty throughout
+    pad = [[r[i] for i in keep] for r in pad]
+    width = len(keep)
     esc = lambda c: c.replace("|", "/")
     lines = ["| " + " | ".join(esc(c) for c in pad[0]) + " |", "| " + " | ".join("---" for _ in range(width)) + " |"]
     lines += ["| " + " | ".join(esc(c) for c in r) + " |" for r in pad[1:]]
@@ -132,6 +158,7 @@ def chunk_flsc(pdf_path: str, cfg: dict, label: str) -> tuple[list[dict], dict]:
     doc = pymupdf.open(pdf_path)
     first, last = cfg.get("first_page", 24), cfg.get("last_page", len(doc))
     starts = chapter_starts(doc, first)
+    heads = outline_headings(doc, first)
     seen: Counter = Counter()
     chunks: list[dict] = []
     stats: dict = dict(orphan_rows=0, unmatched_headings=[], dropped_tables=[], ligature_fixes={}, unresolved_tokens={}, skipped_pages=[], empty_pages=[])
@@ -213,21 +240,38 @@ def chunk_flsc(pdf_path: str, cfg: dict, label: str) -> tuple[list[dict], dict]:
         num, ctitle = chapter_at(pno)
         part = f"Chapter {num} {ctitle}"
         items, _parsed = page_items(page, tabs)
-        for it in items:
+        skip_lines = 0
+        for li_idx, it in enumerate(items):
             if it["kind"] == "line":
-                m = SECTION_RE.match(it["text"])
-                if it["size"] >= HEADING_MIN_SIZE and it["bold"] and m and not PARA_RE.match(it["text"]):
-                    key = (num, m.group(1), re.sub(r"\(?continued\)?|\.+$", "", m.group(2), flags=re.I).strip().lower())
-                    if key == last_key:  # running heading repeated at the top of a continuation page
-                        if cur:
-                            cur["last"] = pno
-                        continue
-                    last_key = key
+                # a heading is an outline heading of this page, possibly wrapped over up to three lines
+                hit = None
+                if pno in heads:
+                    acc = ""
+                    for look in range(3):
+                        li = li_idx + look
+                        if li >= len(items) or items[li]["kind"] != "line":
+                            break
+                        acc += items[li]["text"]
+                        k = _key(acc)
+                        match = [h for h in heads[pno] if h[0] == k]
+                        if match:
+                            hit = (match[0], look)
+                            break
+                        if not any(h[0].startswith(k) for h in heads[pno]):
+                            break
+                if skip_lines:
+                    skip_lines -= 1
+                    continue
+                if hit:
+                    (hk, href, htitle), extra = hit
+                    skip_lines = extra
                     flush_table()
                     flush()
-                    ref = f"Ch. {num} §{m.group(1)}"
-                    path = [label, part, f"{m.group(1)} {clean(m.group(2))}"]
-                    cur = dict(ref=ref, path=path, part=part, page=pno, last=pno, lines=[it["text"]])
+                    last_key = hk
+                    cur = dict(ref=f"Ch. {num} §{href}", path=[label, part, f"{href} {htitle}"], part=part, page=pno, last=pno, lines=[f"{href}. {htitle}"])
+                    continue
+                if last_key and cur and _key(it["text"]) in (last_key, last_key + "continued"):
+                    cur["last"] = pno  # running heading repeated on a continuation page
                     continue
                 if cur is None:
                     stats["orphan_rows"] += 1

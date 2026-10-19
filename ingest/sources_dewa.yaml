@@ -1,0 +1,440 @@
+# Documents added 2026-10-19 by the owner: DEWA circulars and guidelines, and the DDA fit-out permit form.
+# kind: ocr = scanned pages read by local OCR (the edition says so); numbered = text-layer PDF, one chunk per page.
+# Publisher DEWA/DDA: authority 'Other' (the database allows DM, Trakhees, RERA, Other).
+documents:
+- slug: dewa-ocr-annexure3
+  title: 'DEWA IMS Project Annexure-3: arrangement of kWh meters in the electricity service room or cabinet'
+  authority: Other
+  edition: undated annexure (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Annexure3.pdf
+  kind: ocr
+- slug: dewa-ocr-cir1
+  title: 'DEWA circular SMCS/590/2006 (Cir.18): location of the main electrical service room in buildings'
+  authority: Other
+  edition: 21 May 2006 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Cir1.pdf
+  kind: ocr
+- slug: dewa-ocr-cir10
+  title: 'DEWA circular HCS/160/2003: enforcement of DEWA''s Regulations for Electrical Installations at consumer premises'
+  authority: Other
+  edition: ref. HCS/160/2003 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Cir10.pdf
+  kind: ocr
+- slug: dewa-ocr-cir19
+  title: 'DEWA circular SMCS/1289/2007: authorized engineers of electrical contractors and consultants'
+  authority: Other
+  edition: ref. SMCS/1289/2007 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Cir19.pdf
+  kind: ocr
+- slug: dewa-ocr-cir2
+  title: 'DEWA circular HCS/21/2004: chiller and motor loads proposed to be connected to DEWA''s transformer'
+  authority: Other
+  edition: 9 March 2004 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Cir2.pdf
+  kind: ocr
+- slug: dewa-ocr-cir20
+  title: 'DEWA circular SMCS/46/2008: inclusion of design requirements for green building specification in the DEWA Regulations for Electrical and Water Installations'
+  authority: Other
+  edition: ref. SMCS/46/2008 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Cir20.pdf
+  kind: ocr
+- slug: dewa-ocr-cir3
+  title: 'DEWA circular SMCS/580/2008: provision for connection of mobile or standby generator in Government and Rulers'' projects and other important installations'
+  authority: Other
+  edition: ref. SMCS/580/2008 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Cir3.pdf
+  kind: ocr
+- slug: dewa-ocr-cir5
+  title: 'DEWA circular HCS/1104/2001: electrical service room in residential and commercial buildings'
+  authority: Other
+  edition: ref. HCS/1104/2001 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Cir5.pdf
+  kind: ocr
+- slug: dewa-ocr-cir6
+  title: 'DEWA circular HCS/1076/2002: padlocking arrangement for circuit breakers (MCCBs) installed before tariff metering'
+  authority: Other
+  edition: 19 October 2002 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Cir6.pdf
+  kind: ocr
+- slug: dewa-ocr-cir8
+  title: 'DEWA circular HCS/91/2001: safety of capacitor bank installation'
+  authority: Other
+  edition: ref. HCS/91/2001 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Cir8.pdf
+  kind: ocr
+- slug: dewa-ocr-cir9
+  title: 'DEWA circular HCS/1223/2001: consumer''s earthing system, use of good quality earth electrodes'
+  authority: Other
+  edition: ref. HCS/1223/2001 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Cir9.pdf
+  kind: ocr
+- slug: dewa-ocr-dewa-use-of-ct
+  title: 'DEWA circular SMCS/GEN/064/2013 (Cir-35): use of CT operated meter for 160 amps connection'
+  authority: Other
+  edition: ref. SMCS/GEN/064/2013 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/DEWA USE OF CT.pdf
+  kind: ocr
+- slug: dewa-ocr-dewa-uv-relay
+  title: 'DEWA circular SMCS/GEN/036/2011 (Cir-29): under voltage (U.V.) relay for chiller equipment and plant'
+  authority: Other
+  edition: ref. SMCS/GEN/036/2011 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/DEWA UV RELAY.pdf
+  kind: ocr
+- slug: dewa-ocr-dewa-service-cable-2
+  title: 'DEWA circular VPCS/0065/2015: temporary power supply for construction purposes using the DEWA service cable'
+  authority: Other
+  edition: 6 April 2015 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/DEWA_Service_Cable (2).pdf
+  kind: ocr
+- slug: dewa-ocr-dp-87-2017
+  title: 'DEWA circular DP/087/2017: design guidelines for distribution networks, building substation requirement'
+  authority: Other
+  edition: 23 August 2017 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/DP 87 2017.pdf
+  kind: ocr
+- slug: dewa-ocr-dp-99-2017-circular
+  title: 'DEWA circular DP/099/2017: design guidelines for the distribution network, design requirements for MV (11 kV) supply'
+  authority: Other
+  edition: 25 September 2017 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/DP 99 2017 Circular.pdf
+  kind: ocr
+- slug: dewa-ocr-e-e-1-cc
+  title: 'DEWA circular VPCS/195/2015: enhancements and evaluation of consultants'' and contractors'' electrical works'
+  authority: Other
+  edition: 23 December 2015 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/E E 1 CC.pdf
+  kind: ocr
+- slug: dewa-ocr-enhancement
+  title: 'DEWA circular DP/0054/2013 (Cir-37): enhancement of the Getting Electricity process 2013'
+  authority: Other
+  edition: ref. DP/0054/2013 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/ENHANCEMENT.pdf
+  kind: ocr
+- slug: dewa-ocr-enhancement-of-lv-network
+  title: 'DEWA circular CS/Gen/107/2017: enhancement of LV network design submission and approval process for group of villas projects'
+  authority: Other
+  edition: 28 June 2017 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Enhancement of LV Network.pdf
+  kind: ocr
+- slug: dewa-ocr-enhancements-of-services-2018
+  title: 'DEWA circular DP/057/2018: enhancements of services, on-line technical discussions and support'
+  authority: Other
+  edition: 18 June 2018 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Enhancements of Services 2018.pdf
+  kind: ocr
+- slug: dewa-ocr-enrollment
+  title: 'DEWA circular SMCS/1077/2007: DEWA e-Services enrollment and registration of consultants and contractors'
+  authority: Other
+  edition: ref. SMCS/1077/2007 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Enrollment.pdf
+  kind: ocr
+- slug: dewa-ocr-gees
+  title: 'DEWA circular SMCS/GEN/079/2013: ''Getting Electricity'' enhancement of services'
+  authority: Other
+  edition: ref. SMCS/GEN/079/2013 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/GEES.pdf
+  kind: ocr
+- slug: dewa-ocr-guidelines-for-new-connection
+  title: 'DEWA circular SMCS/GEN/173/2010: guideline for new connection to fit-outs, shops and offices where power supply to the landlord area in a new building is released'
+  authority: Other
+  edition: ref. SMCS/GEN/173/2010 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/GUIDELINES FOR NEW CONNECTION.pdf
+  kind: ocr
+- slug: dewa-ocr-getting-electricity
+  title: 'DEWA circular VPCS/050/2015: Getting Electricity application, submission of information related to the premises'
+  authority: Other
+  edition: ref. VPCS/050/2015 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Getting_Electricity.pdf
+  kind: ocr
+- slug: dewa-ocr-intelligentmeteringsystem
+  title: 'DEWA circular SMCS/1091-R1/2007: Intelligent Metering System (IMS), provision for installation of electricity and water meters in projects'
+  authority: Other
+  edition: ref. SMCS/1091-R1/2007 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/IntelligentMeteringSystem.pdf
+  kind: ocr
+- slug: dewa-ocr-provision-of-building-substation
+  title: 'DEWA circular SMCS/GEN/266/2009: provision of building substation within petrol filling station premises and plots'
+  authority: Other
+  edition: ref. SMCS/GEN/266/2009 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Provision of Building Substation.pdf
+  kind: ocr
+- slug: dewa-ocr-requirements-of-uninterrupted-power-supply
+  title: 'DEWA circular DP/054/2017: requirements of uninterrupted power supply for projects of touristic, commercial and cultural categories'
+  authority: Other
+  edition: 17 May 2017 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Requirements of uninterrupted Power Supply.pdf
+  kind: ocr
+- slug: dewa-ocr-skm-c221161225093200
+  title: 'DEWA circular DP/143/2016: enhancement of connection cost estimation process, slab unit rate per kW, phase II, for Getting Electricity'
+  authority: Other
+  edition: 22 December 2016 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/SKM_C221161225093200.pdf
+  kind: ocr
+- slug: dewa-ocr-smartest-city
+  title: 'DEWA circular (Dubai Smartest City): Shams Dubai initiative'
+  authority: Other
+  edition: 8 May 2016, reference number unclear in the scan (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/Smartest City.pdf
+  kind: ocr
+- slug: dewa-ocr-vpcs-176-2015
+  title: 'DEWA circular VPCS/176/2015: Getting Electricity services, electrical contractors'' inspection and testing certificates and LV panel clearance on-line submission'
+  authority: Other
+  edition: ref. VPCS/176/2015 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/VPCS_176_2015.pdf
+  kind: ocr
+- slug: dewa-ocr-wannexure5
+  title: 'DEWA Annexure-5: villa complex layout for conduit arrangement between electricity and water metering cabinets (option 1)'
+  authority: Other
+  edition: undated annexure (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/WAnnexure5.pdf
+  kind: ocr
+- slug: dewa-ocr-tracking
+  title: 'DEWA circular SMCS/GEN/402/2010 (Cir-28): DEWA e-Services, tracking of application status and receiving electricity estimate through e-service'
+  authority: Other
+  edition: ref. SMCS/GEN/402/2010 (scanned copy, text read by OCR)
+  status: current
+  source_url: null
+  pdf_path: data/raw/tracking.pdf
+  kind: ocr
+- slug: dewa-asraa-initiative
+  title: 'DEWA circular DP-VP-CS-GEN-0046-2026: Dubai ASRA''A initiative'
+  authority: Other
+  edition: 16 June 2026
+  status: current
+  source_url: null
+  pdf_path: data/raw/ASRAA_Initiative.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dewa-dp-vp-cs-gen-0080-2024
+  title: 'DEWA circular DP-VP-CS-GEN-0080-2024: requirements during construction to prevent entry of water into distribution boards, conduits, junction boxes and electrical accessories'
+  authority: Other
+  edition: 25 July 2024
+  status: current
+  source_url: null
+  pdf_path: data/raw/DP-VP-CS-GEN-0080-2024.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dewa-dpcspnegen00622021
+  title: 'DEWA circular DP-CS-PN&E-GEN-0062-2021: revoking of the Developer Load Confirmation Letter'
+  authority: Other
+  edition: 8 November 2021
+  status: current
+  source_url: null
+  pdf_path: data/raw/DPCSPNEGEN00622021.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dewa-enhancement-in-getting-electricity-connection-services
+  title: 'DEWA circular DP-VP-CS-GEN-0038-2026: enhancement in Getting Electricity connection services'
+  authority: Other
+  edition: 1 June 2026
+  status: current
+  source_url: null
+  pdf_path: data/raw/Enhancement in Getting Electricity Connection Services.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dewa-preventing-false-disconnection-of-loads-due-to-under-vo
+  title: 'DEWA circular DP-0439-2021: preventing false disconnection of loads due to under voltage tripping at main incomer circuit breakers (ACBs)'
+  authority: Other
+  edition: 15 September 2021
+  status: current
+  source_url: null
+  pdf_path: data/raw/Preventing False Disconnection Of Loads Due To Under Voltage Tripping At Main Incomer Circuit Breakers ACBs.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dewa-requirement-of-electrical-mechanical-interlock-between
+  title: 'DEWA circular DP-VP-CS-GEN-0090-2022: electrical and mechanical interlock between earth switch and DEWA incomer within private MV switchgear panels'
+  authority: Other
+  edition: 30 June 2022
+  status: current
+  source_url: null
+  pdf_path: data/raw/Requirement of Electrical  Mechanical Interlock Between Earthswitch  DEWA Incomer.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dewa-under-voltage-uv-relays-with-auto-rest-timer-for-aircon
+  title: 'DEWA circular DP-VP-CS-GEN-0153-2021: under voltage (UV) relays with auto reset timer for air-conditioning loads and equipment'
+  authority: Other
+  edition: 23 September 2021
+  status: current
+  source_url: null
+  pdf_path: data/raw/Under Voltage UV Relays with Auto Rest Timer for Airconditioning Loads or Equipment.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dewa-annexure1
+  title: 'DEWA IMS Project Annexure-1: field requirements'
+  authority: Other
+  edition: undated annexure
+  status: current
+  source_url: null
+  pdf_path: data/raw/Annexure1.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dewa-annexure4
+  title: 'DEWA IMS Project Annexure-4: arrangement of CT operated metering in a private LV panel'
+  authority: Other
+  edition: undated annexure
+  status: current
+  source_url: null
+  pdf_path: data/raw/Annexure4.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dewa-1bdomestic-meter-installation-in-villas-and-shedsguidel
+  title: 'DEWA Water AMI guidelines: domestic water meter installation in villas and sheds, on wall'
+  authority: Other
+  edition: Rev 5, 2 January 2026
+  status: current
+  source_url: null
+  pdf_path: data/raw/1bDomestic Meter Installation in Villas and ShedsGuidelinesRev 5 02012026.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dewa-2bdomestic-water-meter-installation-in-meter-roomguidel
+  title: 'DEWA Water AMI guidelines: domestic water meter installation in meter rooms for buildings'
+  authority: Other
+  edition: Rev 5, 2 January 2026
+  status: current
+  source_url: null
+  pdf_path: data/raw/2bDomestic Water Meter Installation in Meter RoomGuidelinesRev5 02012026.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dewa-3bbulk-water-meter-installation-in-chambergre-connectio
+  title: 'DEWA Water AMI guidelines: bulk water meter installation in chamber, GRE connection'
+  authority: Other
+  edition: Rev 5, 2 January 2026
+  status: current
+  source_url: null
+  pdf_path: data/raw/3bBulk Water Meter Installation in ChamberGRE ConnectionGuidelinesRev5 02012026.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dewa-4bbulk-water-meter-installation-in-chamber-ldpe-connect
+  title: 'DEWA Water AMI guidelines: 50 mm bulk water meter installation in chamber, LDPE connection'
+  authority: Other
+  edition: Rev 5, 2 January 2026
+  status: current
+  source_url: null
+  pdf_path: data/raw/4bBulk Water Meter Installation in Chamber  LDPE Connection GuidelinesRev5 02012026.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dewa-5brdc-installation-in-villa-community-for-domestic-wate
+  title: 'DEWA Water AMI guidelines: RDC (radio data concentrator) installation in villa community for domestic water meters'
+  authority: Other
+  edition: Rev 02, 7 April 2022
+  status: current
+  source_url: null
+  pdf_path: data/raw/5bRDC Installation in Villa Community for Domestic Water Meters Rev027042022.pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Page
+    front_type: clause
+- slug: dda-fit-out-permit-form
+  title: 'Dubai Development Authority: Fit-Out Permit Request form (ZA-DC-F-38)'
+  authority: Other
+  edition: Issue 14 (file dated 2024)
+  status: current
+  source_url: null
+  pdf_path: data/raw/ZA-DC-F-38-Fit-out-Permit-Request (1).pdf
+  kind: numbered
+  numbered:
+    clause_re: ^(?!)$
+    front_prefix: Form
+    front_type: clause
