@@ -2,15 +2,25 @@
 
 Everything below needs you. Nothing here blocks the code; items marked "blocks" stop something from going live.
 
-## 1. Indexing is waiting on Google, not on code (blocks)
+## 1. Indexing status and what is still waiting on Google (updated 2026-10-19)
 
-About 2,590 new chunks are parsed, checked and queued. Embedding them hit `EmbedContentRequestsPerDayPerUserPerProjectPerModel-FreeTier` (1,000 a day). You enabled billing, but the API key still reports the **free tier**, so billing is not attached to the Google project that owns `GEMINI_API_KEY`.
+**Live now (1,155 chunks, 21 documents):** DBC 2021 Parts A, B and F; the 17 real-estate laws; Al Sa'fat; the Wind Code (draft); the DBC Circular.
 
-- In Google AI Studio, open the API key's project and link it to your billing account (or create a new key inside the billed project and replace `GEMINI_API_KEY` in `.env.local` and Vercel). Embeddings are the only thing still using Gemini.
-- Check: the queue log (`data/cache/queue.log`) should change from `QUOTA` to `DONE`. It retries every 10 minutes by itself.
-- If you do nothing: the free quota resets about 05:29 local and the queue ingests roughly 1,000 chunks per day in priority order (about 3 days). The live app shares that quota.
-- Order: DBC Part A, the 17 laws, Al Sa'fat, Wind Code, Circular, then DBC Parts F, C, E, D, H, G, J, K.
-- When the queue finishes, `ingest/after_queue.sh` reruns the retrieval eval, the gate sweep (with a recommended threshold), the dense-vs-hybrid experiment and the full eval. Reports land in `evals/reports/` and are **not committed or deployed**. Review them, then set `GATE_THRESHOLD` if the sweep recommends a change.
+**Still to index (about 1,520 chunks):** DBC Parts C, D, E, G, H, J and K. They are parsed and checked.
+
+The embedding key still reports the Gemini **free tier** (1,000 embeddings a day, 100 a minute), so billing is not attached to that key's Google project. In Google AI Studio, link the key's project to your billing account (or create a new key inside the billed project and replace `GEMINI_API_KEY` in `.env.local` and Vercel). Only embeddings still use Gemini.
+
+To continue (safe to rerun, it resumes from the cache): `bash ingest/run_queue.sh`. It waits and retries when the daily limit is hit. Do not run it while you are testing the app: ingestion and live questions share the same embedding limit, and questions fail with "at capacity" while the queue is running.
+
+When indexing is done, rerun the checks by hand (reports go to `evals/reports/`, nothing is committed or deployed):
+```
+pnpm exec tsx scripts/eval.ts --tag post-index-retrieval --retrieval-only
+pnpm exec tsx scripts/gate-sweep.ts
+pnpm exec tsx scripts/exp-modes.ts
+pnpm exec tsx scripts/eval.ts --tag post-index-full
+pnpm exec tsx scripts/ask-batch.ts evals/scenarios.json
+```
+Review the gate sweep's recommended threshold before changing `GATE_THRESHOLD`.
 
 ## 2. GitHub settings
 
