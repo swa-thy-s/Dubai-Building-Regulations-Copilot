@@ -2,8 +2,8 @@ import { z } from "zod/v4";
 import { headers } from "next/headers";
 import { hashIP, checkRateLimit } from "@/lib/pipeline/rate-limit";
 import { runPipeline } from "@/lib/pipeline/pipeline";
-import { answerNotice } from "@/lib/legal";
-import { getVerification, latestVerified } from "@/lib/pipeline/verification";
+import { noticeFor } from "@/lib/legal";
+import { getVerification } from "@/lib/pipeline/verification";
 
 const RequestSchema = z.object({
   question: z.string().min(1).max(500),
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
         );
       }
 
-      const notice = answerNotice(await getVerification().then(latestVerified).catch(() => null));
+      const verification = await getVerification().catch(() => ({}) as Record<string, string>);
       try {
         const result = await runPipeline(
           question,
@@ -61,10 +61,11 @@ export async function POST(request: Request) {
           ipHash,
           (p) => send("progress", p),
         );
-        send("result", { ...result, notice });
+        const shown = [...result.citations, ...(result.nearest ?? [])].map((c) => c.slug);
+        send("result", { ...result, notice: noticeFor(shown, verification) });
       } catch (e) {
         send("error", {
-          notice,
+          notice: noticeFor([], verification),
           error: "Internal error",
           message: e instanceof Error ? e.message : "Unknown error",
         });

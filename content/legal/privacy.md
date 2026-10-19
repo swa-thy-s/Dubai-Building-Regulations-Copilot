@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last updated: 17 October 2026**
+**Last updated: 19 October 2026**
 
 The owner, an independent individual, operates Dubai Regulations Copilot. This policy explains what data the Service handles. We keep it to the minimum needed. There are no accounts, no advertising and no sale of data.
 

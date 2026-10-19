@@ -5,6 +5,7 @@ import { docOf, type DocInfo } from "./documents";
 export interface Citation {
   n: number;
   chunk_id: string;
+  slug: string;
   document: string;
   edition: string;
   authority: string;
@@ -32,6 +33,7 @@ export function buildCitations(
     return {
       n: i + 1,
       chunk_id: id,
+      slug: doc.slug,
       document: doc.title,
       edition: doc.edition,
       authority: doc.authority,
@@ -68,6 +70,7 @@ export function nearestClauses(results: SearchResult[], docs: Map<string, DocInf
     out.push({
       n: out.length + 1,
       chunk_id: r.chunk_id,
+      slug: doc.slug,
       document: doc.title,
       edition: doc.edition,
       authority: doc.authority,

@@ -1,6 +1,6 @@
 # Terms of Use
 
-**Last updated: 17 October 2026**
+**Last updated: 19 October 2026**
 
 These terms apply to your use of Dubai Regulations Copilot (the "Service"), operated by an independent individual ("the owner", "we"). By using the Service you agree to them. If you do not agree, do not use it.
 

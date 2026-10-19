@@ -1,6 +1,6 @@
 # Disclaimer
 
-**Last updated: 17 October 2026**
+**Last updated: 19 October 2026**
 
 ## Reference tool only
 

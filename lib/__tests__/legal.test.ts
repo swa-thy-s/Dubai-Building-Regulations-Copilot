@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import TopBanner from "@/components/TopBanner";
 import Footer from "@/components/Footer";
 import AnswerNotice from "@/components/AnswerNotice";
-import { answerNotice, BANNER_TEXT, INPUT_HINT, MODAL, MODAL_PARAGRAPHS, STRINGS, LEGAL_VERSION, NOTICE_BOLD } from "../legal";
+import { answerNotice, noticeFor, BANNER_TEXT, INPUT_HINT, MODAL, MODAL_PARAGRAPHS, STRINGS, LEGAL_VERSION, NOTICE_BOLD } from "../legal";
 
 describe("exact notice wording (LEGAL.md section 1)", () => {
   it("banner text", () => {
@@ -47,5 +47,21 @@ describe("components", () => {
   it("answer notice renders with and without server text and cannot be omitted", () => {
     expect(renderToStaticMarkup(AnswerNotice({}))).toContain("Reference tool only. Not an official ruling and not advice.");
     expect(renderToStaticMarkup(AnswerNotice({ text: answerNotice("2026-10-01") }))).toContain("last verified on 1 October 2026");
+  });
+});
+
+
+describe("noticeFor: the footer speaks only for the documents shown", () => {
+  const v = { a: "2026-10-19", b: "2026-10-01" };
+  it("uses the oldest date when every shown document is verified", () => {
+    expect(noticeFor(["a", "b", "a"], v)).toContain("last verified on 1 October 2026");
+  });
+  it("warns when any shown document was never verified", () => {
+    expect(noticeFor(["a", "c"], v)).toContain("Some of the documents shown have not yet been verified");
+    expect(noticeFor(["c"], v)).toContain("have not yet been verified against the official sources");
+  });
+  it("falls back to the newest overall date when no documents are shown", () => {
+    expect(noticeFor([], v)).toContain("last verified on 19 October 2026");
+    expect(noticeFor([], {})).toContain("have not yet been verified");
   });
 });

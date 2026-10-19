@@ -6,8 +6,9 @@ documents:
     authority: DM
     edition: "2021"
     status: current
-    source_url: null # TODO: official dm.gov.ae link
     pdf_path: "data/raw/Dubai Building Code_English_2021 Edition.pdf"
+    source_url: "https://dmpmedia.dm.gov.ae/uploads/2021/12/Dubai%20Building%20Code_English_2021%20Edition_compressed.pdf" # official file; SHA-256 identical to the local copy (checked 2026-10-19)
+    verified_on: "2026-10-19"
 
   - slug: dbc-circular
     title: Dubai Building Code Circular
@@ -28,10 +29,11 @@ documents:
     authority: DM
     edition: "2nd ed. 2023"
     status: current
-    source_url: null
     # Step 6 (2026-10-17): parses to 132 chunks (102 articles like 301.01, plus definitions as per-page chunks). Pages are
     # stamped "SHARED - CONFIDENTIAL": owner asked for it to be indexed; confirm quoting rights before any public launch.
     pdf_path: "data/raw/Al-Safat-–-Dubai-Green-Building-System-2nd-editionJan2023.pdf"
+    source_url: "https://dmpmedia.dm.gov.ae/uploads/2023/01/Al-Safat-%E2%80%93-Dubai-Green-Building-System-2nd-editionJan2023.pdf" # official file; SHA-256 identical to the local copy (checked 2026-10-19)
+    verified_on: "2026-10-19"
     kind: numbered
     numbered:
       first_page: 2
@@ -46,8 +48,9 @@ documents:
     authority: DM
     edition: "Draft Copy 2013" # cover says "Draft Copy, Dubai Municipality 2013"
     status: current
-    source_url: null
     pdf_path: "data/raw/DubaiWindCode6-2.pdf"
+    source_url: "https://dmpmedia.dm.gov.ae/uploads/2020/11/DubaiWindCode6-2.pdf" # listed on DM's Publications Related to Building Regulation page; SHA-256 identical (checked 2026-10-19)
+    verified_on: "2026-10-19"
     kind: numbered
     repair_ligatures: true
     numbered:
@@ -64,8 +67,9 @@ documents:
     authority: DM
     edition: TODO
     status: current
-    source_url: null
     pdf_path: "data/raw/DB_SEISMIC-DESIGN-CODEF-OR-DUBAI.pdf"
+    source_url: "https://dmpmedia.dm.gov.ae/uploads/2020/11/DB_SEISMIC-DESIGN-CODEF-OR-DUBAI.pdf" # same; the garbled text layer is in the official file itself
+    verified_on: "2026-10-19"
     # Step 6 (2026-10-17): NOT INDEXED. The text layer uses a shifted font encoding. A +29 shift recovers letters and
     # digits, but stray "A" glyphs stand in for spaces, ")" often comes out as "=", symbols (>=, Greek) are lost and
     # equations are unreadable. Verbatim quotes would be wrong. Needs OCR or an official clean PDF.
@@ -75,8 +79,9 @@ documents:
     authority: DM
     edition: TODO
     status: current
-    source_url: null
     pdf_path: "data/raw/StructuralCodesguidelines4-2.pdf"
+    source_url: "https://dmpmedia.dm.gov.ae/uploads/2020/11/StructuralCodesguidelines4-2.pdf" # same
+    verified_on: "2026-10-19"
     # Step 6 (2026-10-17): NOT INDEXED. 6 pages, scanned images; the cover is bilingual but the body is Arabic. No OCR
     # available locally. Needs Arabic OCR plus a decision on indexing non-English text.
 
@@ -85,8 +90,9 @@ documents:
     authority: DM
     edition: TODO
     status: current
-    source_url: null
     pdf_path: "data/raw/SoiltestingGuidelines3-2.pdf"
+    source_url: "https://dmpmedia.dm.gov.ae/uploads/2020/11/SoiltestingGuidelines3-2.pdf" # same
+    verified_on: "2026-10-19"
     # Step 6 (2026-10-17): NOT INDEXED. 3 pages, scanned Arabic. Same as dbc-structural.
 
   - slug: dubai-real-estate-legislation
@@ -99,7 +105,145 @@ documents:
     repair_ligatures: true # PDF text layer drops fi/fl ligatures; repaired with a dictionary, see ingest/ligatures.py
     pdf_path: "data/raw/Real_Estate_Legislation_en.pdf"
 
+  # ---- Procedure documents fetched from official publisher sites on 2026-10-19 (see docs/WEB_SOURCES.md).
+  # Web pages carry the retrieval date as their edition because the publisher can change them without notice.
+  - slug: dda-fit-out-permit
+    title: DDA Fit-Out Permit service (web page)
+    authority: Other
+    edition: "Web page, retrieved 19 Oct 2026"
+    status: current
+    source_url: "https://dda.gov.ae/planning-development/construction/permits-nocs/fit-out-permit"
+    kind: web
+    html_path: "data/raw/web/dda-fit-out-permit.html"
+    verified_on: "2026-10-19"
+    web:
+      start: "Description This service enables the contractor"
+      end: "Planning & Development Master Planning"
+      sections:
+        - ["Description", "Description"]
+        - ["Details", "Service details and fees"]
+        - ["Required Documents", "Required documents"]
+        - ["Notes", "Notes"]
+        - ["Online Customer Service Online Apply", "How to apply"]
+
+  - slug: dda-building-modification-permit
+    title: DDA Building Modification Permit service (web page)
+    authority: Other
+    edition: "Web page, retrieved 19 Oct 2026"
+    status: current
+    source_url: "https://dda.gov.ae/en/planning-development/construction/permits-nocs/building-modification-permit"
+    kind: web
+    html_path: "data/raw/web/dda-building-modification-permit.html"
+    verified_on: "2026-10-19"
+    web:
+      start: "Description This service enables the customer"
+      end: "Planning & Development Master Planning"
+      sections:
+        - ["Description", "Description"]
+        - ["Details", "Service details and fees"]
+        - ["Required Documents", "Required documents"]
+        - ["Online Online Apply", "How to apply"]
+
+  - slug: dda-circular-318
+    title: "DDA Circular 318: Amendments in Fit out Permit Process"
+    authority: Other
+    edition: "Circular 318 (undated)"
+    status: current
+    source_url: "https://dda.gov.ae/-/media/116360B0DDBF4E1E89473C90A530CEAD.pdf"
+    pdf_path: "data/raw/web/dda-circular-a.pdf"
+    kind: numbered
+    verified_on: "2026-10-19"
+    numbered: {clause_re: '^(?!)$', front_prefix: Page, front_type: clause}
+
+  - slug: dda-circular-338
+    title: "DDA Circular 338: Amendments in Fit out Permit Process"
+    authority: Other
+    edition: "Circular 338 (11 December 2019)"
+    status: current
+    source_url: "https://dda.gov.ae/-/media/403EAC241E074C8DB6385C46DE4896E9.pdf"
+    pdf_path: "data/raw/web/dda-circular-b.pdf"
+    kind: numbered
+    verified_on: "2026-10-19"
+    numbered: {clause_re: '^(?!)$', front_prefix: Page, front_type: clause}
+
+  - slug: trakhees-cp-01
+    title: "Trakhees (PCFC) Client Procedure for obtaining Modification Permits (PCFC-TRK-CED-MF-CP-01)"
+    authority: Trakhees
+    edition: "Revision 02, September 2024"
+    status: current
+    source_url: "https://pcfc.ae/en/Service%20Documents/PCFC-TRK-CED-MF-CP-01,%20Client%20Procecure%20for%20obtaining%20Modification%20Permits.pdf"
+    pdf_path: "data/raw/web/pcfc-trk-ced-mf-cp-01.pdf"
+    kind: numbered
+    verified_on: "2026-10-19"
+    numbered: {clause_re: '^(?!)$', front_prefix: Page, front_type: clause}
+
+  - slug: trakhees-cp-02
+    title: "Trakhees (PCFC) Client Procedure for Modification Completion Certificate and Modification Cancellation Inspection (PCFC-TRK-CED-MF-CP-02)"
+    authority: Trakhees
+    edition: "Revision 02, December 2022"
+    status: current
+    source_url: "https://pcfc.ae/en/Service%20Documents/PCFC-TRK-CED-MF-CP-02,%20Client%20Procedure%20for%20requesting%20Modification%20Completion%20Certificate%20(MCC)%20Modification%20Cancelation%20Inspection%20(MPC).pdf"
+    pdf_path: "data/raw/web/pcfc-trk-ced-mf-cp-02.pdf"
+    kind: numbered
+    verified_on: "2026-10-19"
+    numbered: {clause_re: '^(?!)$', front_prefix: Page, front_type: clause}
+
+  - slug: dm-faq-permit-procedures
+    title: "Dubai Municipality FAQ: Buildings Permit Procedures and Regulations"
+    authority: DM
+    edition: "FAQ PDF (file dated September 2023)"
+    status: current
+    source_url: "https://dmpmedia.dm.gov.ae/uploads/2023/09/FAQ-for-Buildings-Permit-Procedures-and-Regulations-eng-1.pdf"
+    pdf_path: "data/raw/web/dm-faq-permit-procedures.pdf"
+    kind: numbered
+    verified_on: "2026-10-19"
+    numbered: {clause_re: '^(?!)$', front_prefix: Page, front_type: clause}
+
+  - slug: dm-permit-procedure-multistorey
+    title: "Dubai Municipality: Procedure of Issuing Building Permit and Completion Certificate, Multistorey Buildings, FAR and Public Buildings"
+    authority: DM
+    edition: "Version 4 (10/5/2020)"
+    status: current
+    source_url: "https://dmpmedia.dm.gov.ae/uploads/2020/06/Multi-Story_Building-Permits-Procedures.pdf"
+    pdf_path: "data/raw/web/dm-permit-procedures-multistory.pdf"
+    kind: numbered
+    verified_on: "2026-10-19"
+    numbered: {clause_re: '^(?!)$', front_prefix: Page, front_type: clause}
+
+  - slug: dm-permit-procedure-villas
+    title: "Dubai Municipality: Procedure of Issuing Building Permit and Completion Certificate, Villas"
+    authority: DM
+    edition: "Version 4 (10/5/2020)"
+    status: current
+    source_url: "https://dmpmedia.dm.gov.ae/uploads/2020/06/Residential-Buildings_Building-Permits-Procedures.pdf"
+    pdf_path: "data/raw/web/dm-permit-procedures-residential.pdf"
+    kind: numbered
+    verified_on: "2026-10-19"
+    numbered: {clause_re: '^(?!)$', front_prefix: Page, front_type: clause}
+
+  - slug: dm-permit-procedure-industrial
+    title: "Dubai Municipality: Procedure of Issuing Building Permit and Completion Certificate, Industrial Buildings"
+    authority: DM
+    edition: "Version 4 (10/5/2020)"
+    status: current
+    source_url: "https://dmpmedia.dm.gov.ae/uploads/2020/06/Industrial-Buildings_Building-Permits-Procedures.pdf"
+    pdf_path: "data/raw/web/dm-permit-procedures-industrial.pdf"
+    kind: numbered
+    verified_on: "2026-10-19"
+    numbered: {clause_re: '^(?!)$', front_prefix: Page, front_type: clause}
+
 # Module 2 (later): data/raw/Real_Estate_Legislation_en.pdf -> authority RERA
+  - slug: uae-flsc-2018
+    title: UAE Fire and Life Safety Code of Practice
+    authority: Other # published by the Ministry of Interior General Command of Civil Defence
+    edition: "2018 (CDGH-OP-25, September 2018)"
+    status: current
+    source_url: null
+    kind: flsc
+    flsc:
+      first_page: 24 # pages 1-23 are the preface and index
+    pdf_path: "data/raw/UAE Fire and Life Safety Code of Practice.pdf"
+
 # data/raw/Sustainable-Dubai.pdf: NOT INDEXED. It is "A Sustainable Dubai: The Dubai Municipality Report 2016", an annual report,
 # not a regulation. It has no clauses to cite, and indexing it would let report statistics sit beside binding rules.
 # Not ingestible (calculators): the .xls / .xlsx schedules

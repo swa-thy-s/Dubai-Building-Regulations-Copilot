@@ -10,7 +10,7 @@ import yaml
 
 from dotenv import load_dotenv
 
-from ingest import chunk, embed, legislation, numbered, parse, qa, rotated, upsert, verify_chunks
+from ingest import chunk, embed, flsc, legislation, numbered, parse, qa, rotated, upsert, verify_chunks, webdoc
 
 
 def load_source(slug: str) -> dict:
@@ -23,6 +23,23 @@ def load_source(slug: str) -> dict:
 
 def run_parse(slug: str, part: str | None) -> dict:
     src = load_source(slug)
+    if src.get("kind") == "web":
+        raw = Path(src["html_path"]).read_text(errors="ignore")
+        chunks, stats = webdoc.chunk_page(raw, src["web"], src["title"])
+        data = dict(slug=slug, part=src["title"], pages=[1, 1], stats=stats, chunks=chunks)
+        path = qa.cache_path(slug, part)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=1))
+        return data
+    if src.get("kind") == "flsc":
+        cfg = src.get("flsc", {})
+        chunks, stats = flsc.chunk_flsc(src["pdf_path"], cfg, src["title"])
+        n_pages = len(pymupdf.open(src["pdf_path"]))
+        data = dict(slug=slug, part=src["title"], pages=[cfg.get("first_page", 24), cfg.get("last_page", n_pages)], stats=stats, chunks=chunks)
+        path = qa.cache_path(slug, part)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=1))
+        return data
     if src.get("kind") == "numbered":
         cfg = src["numbered"]
         chunks, stats = numbered.chunk_numbered(src["pdf_path"], cfg, src["title"], src.get("repair_ligatures", False))
@@ -119,7 +136,8 @@ def _main() -> None:
     doc_id = upsert.upsert_document(sb, src)
     upsert.upsert_chunks(sb, doc_id, data["chunks"], vectors)
     upsert.record_embedding_model(sb)
-    upsert.upload_pdf(sb, doc_id, src)
+    if src.get("pdf_path"):
+        upsert.upload_pdf(sb, doc_id, src)
     print("done")
 
 

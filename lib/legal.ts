@@ -1,6 +1,6 @@
 // Exact notice wording comes from LEGAL.md. Bump LEGAL_VERSION when any wording changes so the modal reappears.
-export const LEGAL_VERSION = "2026-10-17.1";
-export const LEGAL_UPDATED = "17 October 2026";
+export const LEGAL_VERSION = "2026-10-19.1";
+export const LEGAL_UPDATED = "19 October 2026";
 export const APP_NAME = "Dubai Regulations Copilot";
 
 export const BANNER_TEXT =
@@ -43,8 +43,22 @@ export function formatDate(iso: string): string {
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 }
 
-export function answerNotice(lastVerified: string | null): string {
+export function answerNotice(lastVerified: string | null, partial = false): string {
+  if (partial) return `${NOTICE_BASE} Some of the documents shown have not yet been verified against the official sources.`;
   return lastVerified
     ? `${NOTICE_BASE} Documents shown were last verified on ${formatDate(lastVerified)}.`
     : `${NOTICE_BASE} Documents shown have not yet been verified against the official sources.`;
+}
+
+// The footer speaks only for the documents the answer actually shows: the oldest verification date among them,
+// or a warning when any of them has never been verified.
+export function noticeFor(shownSlugs: string[], verification: Record<string, string>): string {
+  const slugs = [...new Set(shownSlugs)];
+  if (slugs.length === 0) {
+    const all = Object.values(verification).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
+    return answerNotice(all.length ? all[all.length - 1] : null);
+  }
+  const dates = slugs.map((s) => verification[s]);
+  if (dates.some((d) => !d)) return answerNotice(null, dates.some(Boolean));
+  return answerNotice((dates as string[]).sort()[0]);
 }

@@ -49,7 +49,7 @@ def drop_scrambled_tables(doc: pymupdf.Document, chunks: list[dict], min_cov: fl
 def pdf_for(slug: str, sources: list[dict]) -> str | None:
     for s in sources:
         if s["slug"] == slug:
-            return s["pdf_path"]
+            return s.get("pdf_path")  # saved web pages have no PDF to compare against
     return None
 
 

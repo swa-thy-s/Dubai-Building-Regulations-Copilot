@@ -42,3 +42,16 @@ def test_per_minute_429_is_retried(monkeypatch):
     monkeypatch.setattr(embed.urllib.request, "urlopen", fake_urlopen)
     monkeypatch.setattr(embed.time, "sleep", lambda s: None)
     assert embed._call("m", ["a"], "RETRIEVAL_DOCUMENT", "key") == [[0.1, 0.2]]
+
+
+def test_record_sources_plan_merges_without_dropping_existing_dates():
+    from ingest import record_sources as R
+
+    sources = [
+        {"slug": "a", "source_url": "https://x/a", "verified_on": "2026-10-19"},
+        {"slug": "b"},
+        {"slug": "c", "source_url": "https://x/c"},
+    ]
+    urls, ver = R.plan(sources, {"old": "2026-01-01", "a": "2025-01-01"})
+    assert urls == {"a": "https://x/a", "c": "https://x/c"}
+    assert ver == {"old": "2026-01-01", "a": "2026-10-19"}
