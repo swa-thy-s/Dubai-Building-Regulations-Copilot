@@ -34,7 +34,7 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_EMBED_MODEL: gemini-embedding-001
-      GATE_THRESHOLD: "0.68"
+      GATE_THRESHOLD: "0.64"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

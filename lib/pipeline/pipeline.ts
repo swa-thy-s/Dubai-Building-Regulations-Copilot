@@ -40,7 +40,7 @@ export async function runPipeline(
   onProgress?: (p: PipelineProgress) => void,
 ): Promise<PipelineResult> {
   const start = Date.now();
-  const gate = parseFloat(process.env.GATE_THRESHOLD || "0.68");
+  const gate = parseFloat(process.env.GATE_THRESHOLD || "0.64");
   const k = parseInt(process.env.K_CONTEXT || "6", 10);
   const model = llmModel();
 

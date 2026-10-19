@@ -19,7 +19,7 @@ async function main() {
   const results = await hybridSearch(question);
 
   const k = parseInt(process.env.K_CONTEXT || "6", 10);
-  const gate = parseFloat(process.env.GATE_THRESHOLD || "0.68");
+  const gate = parseFloat(process.env.GATE_THRESHOLD || "0.64");
   const bestSim = results[0]?.similarity ?? 0;
   const topFtsInTop5 = results
     .slice(0, 5)

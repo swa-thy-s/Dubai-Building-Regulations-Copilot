@@ -66,3 +66,12 @@
 - **Failures:** g-010 abstained on `verify` (real bug: verify compared "1500" against the table cell "1,500" and rejected a correct table answer). Fixed in `verify.ts` with a comma-insensitive, boundary-aware number match plus tests; g-010 then answered correctly. g-049's `must_include` ("FLSC") was brittle and was changed to "stair".
 - **Not yet done:** LLM-judge faithfulness/completeness (needs owner hand-grading, spec 11.4). A clean rerun after the verify fix is still to do.
 - **Report:** `evals/reports/2026-10-16-727c50b-k2-noprep-timeout25.md`
+
+## 9. Gate threshold re-sweep on the 1,155-chunk corpus (2026-10-19)
+
+- **Context:** corpus grew from 400 to 1,155 chunks (DBC Parts A and F, 17 real-estate laws, Al Sa'fat, Wind Code draft, Circular). Retrieval on the 71-question golden set: Recall@5 99.1% (was 98.9%), MRR 0.966.
+- **Finding:** the similarity gate no longer separates the groups. Should-abstain questions reach 0.78 (median 0.64) and the lowest legitimate question is 0.666 ("Can my landlord refuse to let me renovate...", refused at 0.68 in production). Over-refusal at 0.68 is 1.7% on the golden set but the gate also blocks natural-language questions written by real users.
+- **Test of the alternative:** at 0.64 the model itself refused 9 of 16 should-abstain questions (7 more were answered; three were Trakhees questions run without the filter, and the rest were reasonable partial answers: "the code prescribes no single bearing capacity", "no best insulation material is named").
+- **Decision:** `GATE_THRESHOLD` 0.68 -> 0.64. The gate is a cheap pre-filter for clearly unrelated questions; the model's own abstain and the citation checks do the rest.
+- **Not yet measured:** full end-to-end eval on the new corpus (needs tomorrow's embedding allowance).
+- **Reports:** `evals/reports/2026-10-19-63fba0d-gate-sweep.md`

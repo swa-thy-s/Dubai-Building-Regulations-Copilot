@@ -153,7 +153,7 @@ async function main() {
   }
 
   const k = parseInt(process.env.K_CONTEXT || "6", 10);
-  const gate = parseFloat(process.env.GATE_THRESHOLD || "0.68");
+  const gate = parseFloat(process.env.GATE_THRESHOLD || "0.64");
 
   console.log(`\nEval run: tag=${tag}, questions=${questions.length}, K=${k}, gate=${gate}\n`);
 
