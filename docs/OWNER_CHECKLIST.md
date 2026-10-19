@@ -2,21 +2,20 @@
 
 Everything below needs you. Nothing here blocks the code; items marked "blocks" stop something from going live.
 
-## 1. Indexing status and what is still waiting on Google (updated 2026-10-19)
+## 1. Indexing status and what is still waiting on Google (updated 2026-10-19, evening)
 
-**Live now (1,155 chunks, 21 documents):** DBC 2021 Parts A, B and F; the 17 real-estate laws; Al Sa'fat; the Wind Code (draft); the DBC Circular.
+**Live now (1,167 chunks, 25 documents):** DBC 2021 Parts A, B and F; the 17 real-estate laws; Al Sa'fat; the Wind Code (draft); the DBC Circular; and from official websites the DDA Fit-Out and Building Modification permit pages and DDA Circulars 318 and 338.
 
-**Still to index (about 1,520 chunks):** DBC Parts C, D, E, G, H, J and K. They are parsed and checked.
+**Parsed and queued, in this order (the queue runs the small permit documents first):** Trakhees CP-01 and CP-02, the Dubai Municipality FAQ and three permit-procedure flowcharts (about 38 chunks), then DBC Parts C, E, D, H, G, J and K (about 1,520 chunks). See `docs/WEB_SOURCES.md` for where each came from and what could not be indexed.
 
-The embedding key still reports the Gemini **free tier** (1,000 embeddings a day, 100 a minute), so billing is not attached to that key's Google project. In Google AI Studio, link the key's project to your billing account (or create a new key inside the billed project and replace `GEMINI_API_KEY` in `.env.local` and Vercel). Only embeddings still use Gemini.
+The embedding key still reports the Gemini **free tier** (1,000 embeddings a day, 100 a minute), so billing is not attached to that key's project. The daily allowance ran out again this evening; it resets around 12:30 tomorrow. In Google AI Studio, link the key's project to your billing account (or create a new key inside the billed project and replace `GEMINI_API_KEY` in `.env.local` and Vercel). Only embeddings still use Gemini.
 
-To continue (safe to rerun, it resumes from the cache): `bash ingest/run_queue.sh`. It waits and retries when the daily limit is hit. Do not run it while you are testing the app: ingestion and live questions share the same embedding limit, and questions fail with "at capacity" while the queue is running.
+To continue (safe to rerun, it resumes from the cache): `bash ingest/run_queue.sh`. Do not run it while you are testing the app: ingestion and live questions share the same embedding limit, and questions fail with "at capacity" while the queue is running or the day's allowance is spent.
 
-When indexing is done, rerun the checks by hand (reports go to `evals/reports/`, nothing is committed or deployed):
+After new documents go live, run `python -m ingest.record_sources` to write their official links and verification dates, then rerun the checks by hand (reports go to `evals/reports/`, nothing is committed or deployed):
 ```
 pnpm exec tsx scripts/eval.ts --tag post-index-retrieval --retrieval-only
 pnpm exec tsx scripts/gate-sweep.ts
-pnpm exec tsx scripts/exp-modes.ts
 pnpm exec tsx scripts/eval.ts --tag post-index-full
 pnpm exec tsx scripts/ask-batch.ts evals/scenarios.json
 ```
