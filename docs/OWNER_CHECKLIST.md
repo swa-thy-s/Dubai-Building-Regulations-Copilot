@@ -8,9 +8,14 @@ Everything below needs you. Nothing here blocks the code; items marked "blocks" 
 
 **Parsed and queued, in this order (the queue runs the small permit documents first):** Trakhees CP-01 and CP-02, the Dubai Municipality FAQ and three permit-procedure flowcharts (about 38 chunks), then DBC Parts C, E, D, H, G, J and K (about 1,520 chunks). See `docs/WEB_SOURCES.md` for where each came from and what could not be indexed.
 
+**Also parsed and queued (second queue, `ingest/run_queue_2.sh`), added from the files you put in `data/raw/`:**
+- **UAE Fire and Life Safety Code of Practice (2018), 1,268 chunks.** Chunked by the code's own section headings, with chapter-prefixed references (for example "Ch. 3 §3.2", the same style the Building Code uses) and every table kept whole with its columns. A word-by-word check against the PDF found only 5 of 1,268 chunks under 95% coverage (lowest 92%). Spot-check a few fire-rating tables against the PDF before launch.
+- **47 DEWA circulars and guidelines plus the DDA fit-out permit request form, 103 chunks.** 32 of them are scanned images that I read with local OCR. Their edition says "scanned copy, text read by OCR" on every citation, because OCR can misread a character. Please spot-check a few against the originals (`data/cache/ocr/` holds the raw OCR). Four are single-page drawings (the numbered "a" files for water meters) and were skipped.
+- **Not indexed:** the Dubai Municipality circulars in Arabic, and the scanned Arabic guidelines (see section 4).
+
 The embedding key still reports the Gemini **free tier** (1,000 embeddings a day, 100 a minute), so billing is not attached to that key's project. The daily allowance ran out again this evening; it resets around 12:30 tomorrow. In Google AI Studio, link the key's project to your billing account (or create a new key inside the billed project and replace `GEMINI_API_KEY` in `.env.local` and Vercel). Only embeddings still use Gemini.
 
-To continue (safe to rerun, it resumes from the cache): `bash ingest/run_queue.sh`. Do not run it while you are testing the app: ingestion and live questions share the same embedding limit, and questions fail with "at capacity" while the queue is running or the day's allowance is spent.
+To continue (safe to rerun, it resumes from the cache): `bash ingest/run_queue.sh`, and when it has finished `bash ingest/run_queue_2.sh`. Run them one at a time, because they share the same limit. About 3,250 chunks are waiting in total: roughly 3 to 4 days on the free tier, minutes with billing. Do not run it while you are testing the app: ingestion and live questions share the same embedding limit, and questions fail with "at capacity" while the queue is running or the day's allowance is spent.
 
 After new documents go live, run `python -m ingest.record_sources` to write their official links and verification dates, then rerun the checks by hand (reports go to `evals/reports/`, nothing is committed or deployed):
 ```
