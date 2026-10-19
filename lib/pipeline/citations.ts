@@ -51,7 +51,9 @@ export function buildCitations(
     return nums.map((n) => `[${n}]`).join("");
   });
 
-  return { citations, answer_md };
+  // A run of markers such as [1][2][3][2] shows each citation once, in order of first appearance.
+  const tidy = answer_md.replace(/(?:\[\d+\])+/g, (run) => [...new Set(run.match(/\[\d+\]/g) ?? [])].join(""));
+  return { citations, answer_md: tidy };
 }
 
 // Closest clauses shown with an abstain (spec F4). They are retrieval results, not claims: the UI labels them as

@@ -27,7 +27,7 @@ for unit in "${UNITS[@]}"; do
   [ "$rest" = "$unit" ] && args=() || { part="${rest#--part }"; args=(--part "$part"); }
   while true; do
     echo "$(date '+%F %T') START $unit" >> "$LOG"
-    $PY -m ingest.main "$slug" "${args[@]}" >> "$LOG" 2>&1
+    $PY -m ingest.main "$slug" ${args[@]+"${args[@]}"} >> "$LOG" 2>&1
     code=$?
     if [ $code -eq 0 ]; then echo "$(date '+%F %T') DONE  $unit" >> "$LOG"; break; fi
     if [ $code -eq 75 ]; then echo "$(date '+%F %T') QUOTA $unit - waiting 10 min" >> "$LOG"; sleep 600; continue; fi

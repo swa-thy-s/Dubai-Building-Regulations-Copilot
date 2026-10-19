@@ -61,6 +61,23 @@ describe("buildCitations", () => {
     expect(answer_md).toBe("Width is 1,200 mm [1]. Also see this [1][2].");
   });
 
+  it("shows each citation once within a run of markers", () => {
+    const { answer_md } = buildCitations(
+      {
+        abstain: false,
+        conditions: [],
+        answer_md: "Both apply [1][2]. Again [2][1].",
+        claims: [
+          { text: "t1", chunk_ids: ["a"] },
+          { text: "t2", chunk_ids: ["a", "b"] },
+        ],
+      },
+      ctx,
+      docs,
+    );
+    expect(answer_md).toBe("Both apply [1][2]. Again [1][2].");
+  });
+
   it("leaves unknown markers untouched", () => {
     const { answer_md } = buildCitations(
       { abstain: false, conditions: [], answer_md: "odd [9]", claims: [{ text: "t", chunk_ids: ["a"] }] },
