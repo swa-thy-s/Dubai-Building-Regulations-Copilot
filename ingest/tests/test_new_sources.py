@@ -40,6 +40,9 @@ def test_ocr_filter_drops_low_confidence_and_non_latin_lines():
     assert not ocr.keep_line("DEWA Regulations", 0.5)
     assert not ocr.keep_line("ديوا", 0.99)  # Arabic letterhead
     assert not ocr.keep_line("x", 0.99)
+    assert ocr.keep_line("3.", 0.98)  # list numbers have no letters and must survive
+    assert ocr.keep_line("175", 0.9)
+    assert not ocr.keep_line("alegiulalaiuouwgolig", 0.64)  # Arabic text misread as Latin letters
 
 
 def test_ocr_spacing_repair_splits_run_together_words_but_leaves_codes_alone():

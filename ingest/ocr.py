@@ -16,6 +16,39 @@ CACHE = Path("data/cache/ocr")
 MIN_CONF = 0.80
 DPI = 200
 _engine = None
+_engine2 = None
+
+
+def _ocr2():
+    """More sensitive second pass; only used to recover body lines the first pass missed."""
+    global _engine2
+    if _engine2 is None:
+        from rapidocr_onnxruntime import RapidOCR
+
+        _engine2 = RapidOCR(det_limit_side_len=2400, det_box_thresh=0.3, det_unclip_ratio=1.8, text_score=0.4)
+    return _engine2
+
+
+def _squash(s: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", s.lower())
+
+
+def recover_lines(res2, lines: list[dict]) -> list[dict]:
+    """Lines only the sensitive pass found. Needs real words (3+ spaced words), which excludes letterhead noise."""
+    import difflib
+
+    prim = [_squash(l["text"]) for l in lines]
+    blob = "".join(prim)
+    out = []
+    for box, text, conf in res2 or []:
+        t = text.strip()
+        s = _squash(t)
+        if len(s) < 14 or len(t.split()) < 3 or not keep_line(t, float(conf)) or s in blob:
+            continue
+        if max((difflib.SequenceMatcher(None, s, p).ratio() for p in prim), default=0) >= 0.75:
+            continue
+        out.append(dict(y=min(p[1] for p in box), x=min(p[0] for p in box), text=t, conf=round(float(conf), 3)))
+    return out
 
 
 def _ocr():
@@ -23,7 +56,8 @@ def _ocr():
     if _engine is None:
         from rapidocr_onnxruntime import RapidOCR
 
-        _engine = RapidOCR()
+        # The default detection size shrinks a full page so far that whole lines of body text are missed.
+        _engine = RapidOCR(det_limit_side_len=1600)
     return _engine
 
 
@@ -33,7 +67,13 @@ def latin_ratio(text: str) -> float:
 
 
 def keep_line(text: str, conf: float) -> bool:
-    return conf >= MIN_CONF and len(text.strip()) >= 2 and latin_ratio(text) >= 0.9
+    """Keep real text, drop logos and Arabic letterheads. Lines with no letters (list numbers, figures) are kept."""
+    t = text.strip()
+    if not t:
+        return False
+    if not any(c.isalpha() for c in t):
+        return conf >= 0.6
+    return conf >= MIN_CONF and len(t) >= 2 and latin_ratio(t) >= 0.9
 
 
 def is_scanned(path: str | Path, min_chars: int = 40) -> bool:
@@ -48,7 +88,7 @@ def ocr_pdf(path: str | Path) -> dict:
     if out.exists():
         return json.loads(out.read_text())
     doc = pymupdf.open(path)
-    pages, dropped = [], 0
+    pages, dropped = [], []
     for i in range(len(doc)):
         png = doc[i].get_pixmap(dpi=DPI).tobytes("png")
         res, _ = _ocr()(png)
@@ -57,10 +97,11 @@ def ocr_pdf(path: str | Path) -> dict:
             if keep_line(text, float(conf)):
                 lines.append(dict(y=min(p[1] for p in box), x=min(p[0] for p in box), text=text.strip(), conf=round(float(conf), 3)))
             else:
-                dropped += 1
+                dropped.append(dict(page=i + 1, text=text.strip(), conf=round(float(conf), 3)))
+        lines += recover_lines(_ocr2()(png)[0], lines)
         lines.sort(key=lambda l: (round(l["y"] / 12), l["x"]))  # reading order: rows of ~12 px, left to right
         pages.append([l["text"] for l in lines])
-    data = dict(file=path.name, pages=pages, dropped_lines=dropped)
+    data = dict(file=path.name, pages=pages, dropped_lines=len(dropped), dropped=dropped)
     out.write_text(json.dumps(data, ensure_ascii=False, indent=1))
     return data
 
